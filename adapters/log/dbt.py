@@ -7,6 +7,7 @@ Gracefully handles missing credentials, custom base URLs, and 401/404 API respon
 """
 
 import logging
+import re
 import uuid
 from typing import Any, Dict, Optional
 
@@ -24,7 +25,7 @@ _DBT_STATUS_MAP = {
     2:  "starting",
     3:  "running",
     10: "success",
-    20: "error",
+    20: "failed",
     30: "cancelled",
 }
 
@@ -56,7 +57,6 @@ class DbtCloudLogAdapter(LogAdapter):
         orchestrator_dag_id  = context.get("orchestrator_dag_id")
         orchestrator_task_id = context.get("orchestrator_task_id")
         orchestrator_run_id  = context.get("orchestrator_run_id")
-        execution_mode       = "orchestrated" if orchestrator_tool else "native"
 
         try:
             if not account_id or not api_token or not run_id:
@@ -67,7 +67,9 @@ class DbtCloudLogAdapter(LogAdapter):
 
             data       = run_data.get("data", {})
             status_int = data.get("status", 0)
-            status_str = _DBT_STATUS_MAP.get(status_int, f"success")
+            status_str = _DBT_STATUS_MAP.get(status_int, "success")
+            if status_str == "error":
+                status_str = "failed"
 
             steps = []
             for step in data.get("run_steps", []):
@@ -80,33 +82,42 @@ class DbtCloudLogAdapter(LogAdapter):
                 })
 
             triggered_cause = None
-            trigger_obj = data.get("trigger") or {}
+            trigger_obj = data.get("trigger") if isinstance(data.get("trigger"), dict) else {}
             if isinstance(trigger_obj, dict):
                 triggered_cause = trigger_obj.get("cause") or trigger_obj.get("github_pull_request_id")
+                cause_category  = str(trigger_obj.get("cause_category") or "").strip().lower()
+            else:
+                cause_category  = ""
 
+            # Determine dynamic execution mode
+            if orchestrator_tool:
+                execution_mode = "orchestrated"
+            elif cause_category:
+                execution_mode = cause_category  # "ui", "schedule", "github", "api"
+            else:
+                execution_mode = "native"
+
+            # Parse clean, short error message
             error_message = None
-            if status_str in ["error", "failed"]:
-                detailed_errors = []
+            if status_str in ["failed", "error"]:
+                status_str = "failed"
+                clean_lines = []
                 for step in data.get("run_steps", []):
                     if isinstance(step, dict):
-                        step_status = step.get("status")
                         step_logs = str(step.get("logs") or "")
-                        if step_status == 20 or "ERROR" in step_logs or "Error" in step_logs or "invalid" in step_logs.lower():
-                            lines = [
-                                l.strip() for l in step_logs.split("\n")
-                                if ("ERROR" in l or "Error" in l or "invalid" in l.lower() or "failed" in l.lower())
-                                and "Running" not in l and "Finished" not in l
-                            ]
-                            if lines:
-                                detailed_errors.extend(lines)
-                            elif step_logs.strip():
-                                detailed_errors.append(step_logs.strip()[-300:])
+                        for raw_line in step_logs.split("\n"):
+                            # Strip ANSI color codes and leading timestamps
+                            line = re.sub(r'\x1b\[[0-9;]*[mGKB]', '', raw_line).strip()
+                            line = re.sub(r'^\d{2}:\d{2}:\d{2}\s+', '', line).strip()
+                            
+                            if any(k in line for k in ["Database Error", "SQL compilation error", "invalid identifier", "Syntax Error", "DbSyntaxInvalid"]):
+                                line = re.sub(r'^ERROR\s+Error\s+', 'Error ', line)
+                                line = re.sub(r'^\s*\[Snowflake\]\s*\d+\s*\(\d+\):\s*', '', line)
+                                if line and line not in clean_lines and "Errored [" not in line:
+                                    clean_lines.append(line)
 
-                if detailed_errors:
-                    # Clean up ANSI color codes and join
-                    clean_msg = " | ".join(detailed_errors[:3])
-                    clean_msg = clean_msg.replace("\u001b[31;1m", "").replace("\u001b[0m", "").replace("\u001b[1m", "").replace("\u001b[31m", "")
-                    error_message = clean_msg[:500]
+                if clean_lines:
+                    error_message = " | ".join(clean_lines[:2])[:255]
                 else:
                     error_message = data.get("status_message") or "dbt run failed"
 
@@ -140,7 +151,7 @@ class DbtCloudLogAdapter(LogAdapter):
                 "id":                   str(uuid.uuid4()),
                 "pipeline_id":          str(run_id or "unknown"),
                 "pipeline_name":        "dbt_job_run",
-                "status":               "success",
+                "status":               "failed",
                 "start_time":           None,
                 "end_time":             None,
                 "duration":             None,
@@ -149,7 +160,7 @@ class DbtCloudLogAdapter(LogAdapter):
                 "rows_written":         None,
                 "error_message":        str(exc),
                 "raw_log":              {"api_warning": str(exc), "run_id": run_id},
-                "execution_mode":       execution_mode,
+                "execution_mode":       "native",
                 "triggered_by":         context.get("triggered_by"),
                 "orchestrator_tool":    orchestrator_tool,
                 "orchestrator_dag_id":  orchestrator_dag_id,
