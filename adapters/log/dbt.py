@@ -97,27 +97,43 @@ class DbtCloudLogAdapter(LogAdapter):
             else:
                 execution_mode = "native"
 
-            # Parse clean, short error message
+            # Parse short, clean, human-readable error message
             error_message = None
             if status_str in ["failed", "error"]:
                 status_str = "failed"
-                clean_lines = []
+                model_name = None
+                reason_str = None
+                
                 for step in data.get("run_steps", []):
                     if isinstance(step, dict):
                         step_logs = str(step.get("logs") or "")
                         for raw_line in step_logs.split("\n"):
-                            # Strip ANSI color codes and leading timestamps
                             line = re.sub(r'\x1b\[[0-9;]*[mGKB]', '', raw_line).strip()
                             line = re.sub(r'^\d{2}:\d{2}:\d{2}\s+', '', line).strip()
-                            
-                            if any(k in line for k in ["Database Error", "SQL compilation error", "invalid identifier", "Syntax Error", "DbSyntaxInvalid"]):
-                                line = re.sub(r'^ERROR\s+Error\s+', 'Error ', line)
-                                line = re.sub(r'^\s*\[Snowflake\]\s*\d+\s*\(\d+\):\s*', '', line)
-                                if line and line not in clean_lines and "Errored [" not in line:
-                                    clean_lines.append(line)
 
-                if clean_lines:
-                    error_message = " | ".join(clean_lines[:2])[:255]
+                            # Match model name
+                            m_model = re.search(r'model\s+([A-Za-z0-9_\.]+)', line)
+                            if m_model and not model_name and "target/run" not in line:
+                                raw_mod = m_model.group(1).split(".")[-1]
+                                if raw_mod and raw_mod not in ["sql", "view", "table"]:
+                                    model_name = raw_mod
+
+                            # Match specific error line
+                            if "invalid identifier" in line.lower() or "syntax error" in line.lower() or "compilation error" in line.lower():
+                                reason_str = line
+                            elif "Database Error" in line and not reason_str:
+                                reason_str = line
+
+                if model_name and reason_str:
+                    reason_clean = re.sub(r'\(target/run/[^)]+\)', '', reason_str).strip()
+                    reason_clean = re.sub(r'^Error\s*\[[^\]]+\]:\s*', '', reason_clean).strip()
+                    reason_clean = re.sub(r'^\s*\[Snowflake\]\s*\d+\s*\(\d+\):\s*', '', reason_clean).strip()
+                    error_message = f"Model '{model_name}': {reason_clean}"
+                elif reason_str:
+                    reason_clean = re.sub(r'\(target/run/[^)]+\)', '', reason_str).strip()
+                    reason_clean = re.sub(r'^Error\s*\[[^\]]+\]:\s*', '', reason_clean).strip()
+                    reason_clean = re.sub(r'^\s*\[Snowflake\]\s*\d+\s*\(\d+\):\s*', '', reason_clean).strip()
+                    error_message = reason_clean[:200]
                 else:
                     error_message = data.get("status_message") or "dbt run failed"
 

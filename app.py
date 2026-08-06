@@ -308,7 +308,7 @@ def dbt_webhook(user_id: str):
 
         log_val = result.get("log")
         orch_tool = orchestrator_context.get("orchestrator_tool") or (log_val.get("orchestrator_tool") if isinstance(log_val, dict) else None)
-        exec_mode = "orchestrated" if orch_tool else "native"
+        exec_mode = log_val.get("execution_mode") if (isinstance(log_val, dict) and log_val.get("execution_mode")) else ("orchestrated" if orch_tool else "native")
 
         if isinstance(log_val, dict):
             log_payload = dict(log_val)
