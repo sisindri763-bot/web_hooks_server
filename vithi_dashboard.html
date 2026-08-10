@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VITHI — Executive Data Observability Dashboard</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js for Live Interactive Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --panel-bg: #13192b;
+      --panel-border: rgba(255, 255, 255, 0.07);
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Left Navigation Sidebar */
+    .sidebar {
+      width: 240px;
+      background: #0f1422;
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.2rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      padding-left: 0.5rem;
+    }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    .brand-text { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; }
+    .brand-sub { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .nav-list { display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.85rem; border-radius: 10px;
+      color: var(--text-muted); font-size: 0.88rem; font-weight: 500;
+      text-decoration: none; transition: all 0.2s; cursor: pointer;
+    }
+    .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: var(--text-main); }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.05));
+      color: #a5b4fc; font-weight: 600; border-left: 3px solid var(--accent-indigo);
+    }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .user-pill {
+      background: rgba(255, 255, 255, 0.03); border: 1px solid var(--panel-border);
+      padding: 0.75rem; border-radius: 12px; display: flex; align-items: center; gap: 0.75rem;
+      margin-top: auto;
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: #334155;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #cbd5e1;
+    }
+
+    /* Main Dashboard Layout */
+    .main-content {
+      flex-grow: 1;
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Top Executive Header */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .page-title { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; }
+    .page-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .controls-row { display: flex; align-items: center; gap: 0.75rem; }
+    .control-select, .btn-ctrl {
+      background: var(--panel-bg); border: 1px solid var(--panel-border);
+      color: var(--text-main); padding: 0.5rem 0.85rem; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 500; outline: none; cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+      border: none; color: white; font-weight: 600; padding: 0.55rem 1rem;
+      border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    /* 6 Top Metric Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .kpi-header { display: flex; justify-content: space-between; align-items: center; }
+    .kpi-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .kpi-val { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; margin: 0.4rem 0 0.2rem 0; }
+    .kpi-delta { font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem; }
+    .delta-up { color: var(--accent-emerald); }
+    .delta-down { color: var(--accent-rose); }
+
+    /* Grid Row 1: Charts & Incidents */
+    .row-grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.2fr;
+      gap: 1.25rem;
+    }
+    .panel-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex; flex-direction: column;
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .panel-title { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+    .chart-box { flex-grow: 1; min-height: 180px; position: relative; }
+
+    /* Incident Feed List */
+    .incident-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .incident-item {
+      background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 0.75rem; border-radius: 10px; display: flex; gap: 0.75rem; align-items: flex-start;
+    }
+    .badge-p1 { background: rgba(244, 63, 94, 0.2); color: #fda4af; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; }
+    .badge-p2 { background: rgba(245, 158, 11, 0.2); color: #fde047; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; }
+    .badge-p3 { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+    /* Observability Scorecards */
+    .score-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.85rem; }
+    .score-card {
+      background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border);
+      padding: 0.85rem; border-radius: 12px; text-align: center;
+    }
+    .score-val { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--accent-emerald); margin-top: 0.2rem; }
+
+    /* Middle Layout Grid: Volume, Failure, Freshness, Lineage */
+    .row-grid-middle {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.2fr;
+      gap: 1.25rem;
+    }
+
+    .bar-row { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); }
+    .bar-track { height: 6px; background: rgba(255, 255, 255, 0.06); border-radius: 3px; overflow: hidden; }
+    .bar-fill-emerald { height: 100%; background: var(--accent-emerald); border-radius: 3px; }
+    .bar-fill-rose { height: 100%; background: var(--accent-rose); border-radius: 3px; }
+
+    /* Lineage Node Graph Display */
+    .lineage-graph {
+      background: rgba(0, 0, 0, 0.2); border: 1px dashed var(--panel-border);
+      border-radius: 10px; padding: 1rem; display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .node-box {
+      background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.78rem; text-align: center;
+    }
+
+    /* Executive Recent Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th { text-align: left; padding: 0.75rem 0.85rem; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--panel-border); }
+    td { padding: 0.85rem 0.85rem; font-size: 0.82rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+    }
+    .status-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .status-failed { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-success { background: #34d399; }
+    .dot-failed { background: #fb7185; }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-text">VITHI</div>
+        <div class="brand-sub">Data Observability</div>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <a class="nav-item active"><span class="nav-icon">🌌</span> Overview</a>
+      <a class="nav-item"><span class="nav-icon">🔌</span> Pipelines</a>
+      <a class="nav-item"><span class="nav-icon">👁️</span> Data Observability</a>
+      <a class="nav-item"><span class="nav-icon">🕸️</span> Lineage</a>
+      <a class="nav-item"><span class="nav-icon">🚨</span> Incidents</a>
+      <a class="nav-item"><span class="nav-icon">🔔</span> Alerts</a>
+      <a class="nav-item"><span class="nav-icon">🎯</span> Data Quality</a>
+      <a class="nav-item"><span class="nav-icon">📜</span> Logs</a>
+      <a class="nav-item"><span class="nav-icon">📊</span> Metrics</a>
+      <a class="nav-item"><span class="nav-icon">🏗️</span> Infrastructure</a>
+      <a class="nav-item"><span class="nav-icon">💰</span> Cost</a>
+      <a class="nav-item"><span class="nav-icon">📋</span> Reports</a>
+      <a class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+
+    <div class="user-pill">
+      <div class="avatar">SA</div>
+      <div>
+        <div style="font-size: 0.82rem; font-weight: 700;">Sai</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted);">Data Team</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <main class="main-content">
+    
+    <!-- TOP HEADER -->
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Executive Overview</h1>
+        <p class="page-sub">Real-time overview of your data ecosystem</p>
+      </div>
+      <div class="controls-row">
+        <select class="control-select"><option>Environment: Production</option></select>
+        <select class="control-select"><option>🕒 Last 24 hours</option></select>
+        <button class="btn-ctrl" onclick="fetchVithiData()">🔄 5m</button>
+        <button class="btn-primary">+ Add Widget</button>
+      </div>
+    </div>
+
+    <!-- 6 KPI CARDS GRID -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Pipelines</span><span>🔌</span></div>
+        <div id="kpiPipelines" class="kpi-val">247</div>
+        <div class="kpi-delta delta-up">▲ 12 vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Success Rate</span><span>📈</span></div>
+        <div id="kpiSuccess" class="kpi-val">96.2%</div>
+        <div class="kpi-delta delta-up">▲ 2.1% vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Failed Pipelines</span><span>🔴</span></div>
+        <div id="kpiFailed" class="kpi-val">9</div>
+        <div class="kpi-delta delta-down">▼ 3 vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Incidents</span><span>🛡️</span></div>
+        <div id="kpiIncidents" class="kpi-val">5</div>
+        <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Datasets</span><span>🗄️</span></div>
+        <div id="kpiDatasets" class="kpi-val">1,342</div>
+        <div class="kpi-delta delta-up">▲ 68 vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header"><span class="kpi-label">Data Freshness</span><span>🟢</span></div>
+        <div id="kpiFreshness" class="kpi-val">91.3%</div>
+        <div class="kpi-delta delta-up">▲ 1.8% vs yesterday</div>
+      </div>
+    </div>
+
+    <!-- ROW 1: CHARTS & ACTIVE INCIDENTS -->
+    <div class="row-grid-3">
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Pipeline Runs Over Time</div></div>
+        <div class="chart-box"><canvas id="chartRunsOverTime"></canvas></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Pipeline Duration (Avg)</div></div>
+        <div class="chart-box"><canvas id="chartDuration"></canvas></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Throughput (Rows/sec)</div></div>
+        <div class="chart-box"><canvas id="chartThroughput"></canvas></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-head">
+          <div class="panel-title">Active Incidents</div>
+          <span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;">View all</span>
+        </div>
+        <div class="incident-list">
+          <div class="incident-item">
+            <span class="badge-p1">P1</span>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700;">Orders_Load Pipeline Failed</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Pipeline failed at Load to Snowflake • 5m ago</div>
+            </div>
+          </div>
+          <div class="incident-item">
+            <span class="badge-p2">P2</span>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700;">Customer Table Freshness Anomaly</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Table is 47m stale (Threshold: 10m) • 12m ago</div>
+            </div>
+          </div>
+          <div class="incident-item">
+            <span class="badge-p2">P2</span>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700;">Sales Volume Anomaly</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Volume dropped by 65% • 18m ago</div>
+            </div>
+          </div>
+          <div class="incident-item">
+            <span class="badge-p3">P3</span>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700;">Schema Change Detected</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">New column 'discount_code' in orders • 1h ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA OBSERVABILITY SCORECARDS -->
+    <div class="panel-card">
+      <div class="panel-head"><div class="panel-title">Data Observability Pillars</div></div>
+      <div class="score-grid">
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Freshness</div><div class="score-val">91.3%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Volume</div><div class="score-val">93.7%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Schema</div><div class="score-val">98.6%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
+      </div>
+    </div>
+
+    <!-- MIDDLE ROW: VOLUME, FAILURES, FRESHNESS, LINEAGE -->
+    <div class="row-grid-middle">
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Top Pipelines by Volume</div></div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Customer_Load</span><span>1.2B</span></div>
+          <div class="bar-track"><div class="bar-fill-emerald" style="width: 100%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Orders_Load</span><span>987M</span></div>
+          <div class="bar-track"><div class="bar-fill-emerald" style="width: 82%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Sales_Load</span><span>654M</span></div>
+          <div class="bar-track"><div class="bar-fill-emerald" style="width: 55%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Inventory_Sync</span><span>321M</span></div>
+          <div class="bar-track"><div class="bar-fill-emerald" style="width: 27%;"></div></div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Failure Rate by Pipeline</div></div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Orders_Load</span><span>12.3%</span></div>
+          <div class="bar-track"><div class="bar-fill-rose" style="width: 75%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Payment_Load</span><span>5.2%</span></div>
+          <div class="bar-track"><div class="bar-fill-rose" style="width: 40%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Inventory_Sync</span><span>2.1%</span></div>
+          <div class="bar-track"><div class="bar-fill-rose" style="width: 18%;"></div></div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Data Freshness (Top Datasets)</div></div>
+        <div class="bar-row"><div class="bar-label"><span>dim_customer</span><span style="color: var(--accent-emerald);">2m ago</span></div></div>
+        <div class="bar-row"><div class="bar-label"><span>fact_orders</span><span style="color: var(--accent-emerald);">3m ago</span></div></div>
+        <div class="bar-row"><div class="bar-label"><span>fact_sales</span><span style="color: var(--accent-amber);">12m ago</span></div></div>
+        <div class="bar-row"><div class="bar-label"><span>dim_product</span><span style="color: var(--accent-amber);">15m ago</span></div></div>
+        <div class="bar-row"><div class="bar-label"><span>agg_daily_revenue</span><span style="color: var(--accent-rose);">47m ago</span></div></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Lineage & Impact</div><span style="font-size: 0.75rem; color: var(--accent-indigo);">View full</span></div>
+        <div class="lineage-graph">
+          <div class="node-box">🗄️ MySQL<br/><span style="font-size: 0.65rem; color: var(--text-muted);">customers</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">➔</div>
+          <div class="node-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4);">⚙️ dbt Cloud<br/><span style="font-size: 0.65rem; color: var(--text-muted);">stg_employees</span></div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">➔</div>
+          <div class="node-box" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);">❄️ Snowflake<br/><span style="font-size: 0.65rem; color: var(--text-muted);">dim_customer</span></div>
+        </div>
+        <div style="font-size: 0.78rem; font-weight: 700; margin-bottom: 0.5rem;">Downstream Impact</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+          <span>📊 Sales Dashboard</span><span style="color: var(--accent-rose); font-weight: 700;">High</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+          <span>📈 Revenue Report</span><span style="color: var(--accent-rose); font-weight: 700;">High</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT PIPELINE RUNS TABLE -->
+    <div class="panel-card">
+      <div class="panel-head"><div class="panel-title">Pipeline Runs (Recent)</div></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Pipeline</th>
+            <th>Source ➔ Target</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Records</th>
+            <th>Start Time</th>
+            <th>Last Run</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody id="vithiTableBody">
+          <tr>
+            <td><strong>Customer_Load</strong></td>
+            <td>MySQL ➔ Snowflake</td>
+            <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+            <td>12m 31s</td>
+            <td>1.2B</td>
+            <td>Jun 21, 10:00 AM</td>
+            <td>2m ago</td>
+            <td>Data Team</td>
+          </tr>
+          <tr>
+            <td><strong>Orders_Load</strong></td>
+            <td>MySQL ➔ Snowflake</td>
+            <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span></td>
+            <td>6m 12s</td>
+            <td><span style="color: var(--accent-rose);">230M / 987M</span></td>
+            <td>Jun 21, 09:45 AM</td>
+            <td>17m ago</td>
+            <td>Data Team</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script>
+    // Initialize Live Interactive Charts
+    const ctxRuns = document.getElementById('chartRunsOverTime').getContext('2d');
+    new Chart(ctxRuns, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [
+          { label: 'Success', data: [110, 125, 95, 140, 115, 150], borderColor: '#10b981', tension: 0.4, borderWidth: 2, pointRadius: 0 },
+          { label: 'Failed', data: [8, 12, 5, 18, 9, 7], borderColor: '#f43f5e', tension: 0.4, borderWidth: 2, pointRadius: 0 },
+          { label: 'Running', data: [25, 30, 20, 35, 28, 40], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, pointRadius: 0 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    const ctxDur = document.getElementById('chartDuration').getContext('2d');
+    new Chart(ctxDur, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [{ label: 'Duration', data: [12, 18, 14, 22, 16, 19], borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.1)', fill: true, tension: 0.4, borderWidth: 2 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    const ctxTp = document.getElementById('chartThroughput').getContext('2d');
+    new Chart(ctxTp, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [{ label: 'Throughput', data: [1.2, 1.8, 1.4, 2.1, 1.6, 2.4], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    // Fetch live summary & table data from backend
+    async function fetchVithiData() {
+      try {
+        const resSum = await fetch('/api/dashboard/summary');
+        if (resSum.ok) {
+          const data = await resSum.json();
+          document.getElementById('kpiPipelines').textContent = data.pipelines_count;
+          document.getElementById('kpiSuccess').textContent = data.success_rate;
+          document.getElementById('kpiFailed').textContent = data.failed_pipelines;
+          document.getElementById('kpiIncidents').textContent = data.incidents_count;
+          document.getElementById('kpiDatasets').textContent = data.datasets_count;
+          document.getElementById('kpiFreshness').textContent = data.data_freshness;
+        }
+
+        const resTable = await fetch('/api/dashboard/recent-runs');
+        if (resTable.ok) {
+          const data = await resTable.json();
+          const tbody = document.getElementById('vithiTableBody');
+          if (data.runs && data.runs.length > 0) {
+            tbody.innerHTML = data.runs.map(r => `
+              <tr>
+                <td><strong>${r.pipeline_name}</strong></td>
+                <td>${r.source_target}</td>
+                <td><span class="status-badge ${r.status === 'Success' ? 'status-success' : 'status-failed'}"><span class="dot ${r.status === 'Success' ? 'dot-success' : 'dot-failed'}"></span>${r.status}</span></td>
+                <td>${r.duration}</td>
+                <td>${r.records}</td>
+                <td>${r.start_time}</td>
+                <td>${r.last_run}</td>
+                <td>${r.owner}</td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.log('Using default VITHI dashboard preview data');
+      }
+    }
+
+    fetchVithiData();
+  </script>
+</body>
+</html>

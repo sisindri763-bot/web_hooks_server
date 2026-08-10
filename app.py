@@ -43,7 +43,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config.db import init_db, register_pipeline, get_pipeline, find_pipeline, list_pipelines, delete_pipeline
 from config.results_db import (
     init_results_db, save_pipeline_run, save_source_asset_metadata, save_target_asset_metadata,
-    list_recent_runs, get_run_with_assets,
+    list_recent_runs, get_run_with_assets, get_executive_summary, get_dashboard_recent_table,
 )
 from adapters  import LOG_ADAPTERS, SOURCE_ADAPTERS, TARGET_ADAPTERS
 
@@ -451,9 +451,24 @@ def admin_delete_config(job_id: str):
 # Health & Dashboard UI routes
 # ---------------------------------------------------------------------------
 
-@app.route("/", methods=["GET"])
-def serve_dashboard():
+@app.route("/vithi", methods=["GET"])
+def serve_vithi_dashboard():
+    vithi_path = Path(__file__).parent / "vithi_dashboard.html"
+    if vithi_path.exists():
+        return send_file(vithi_path)
     return send_file(Path(__file__).parent / "index.html")
+
+
+@app.route("/api/dashboard/summary", methods=["GET"])
+def api_dashboard_summary():
+    summary = get_executive_summary()
+    return jsonify(summary), 200
+
+
+@app.route("/api/dashboard/recent-runs", methods=["GET"])
+def api_dashboard_recent_runs():
+    table = get_dashboard_recent_table(limit=15)
+    return jsonify({"runs": table}), 200
 
 
 @app.route("/health", methods=["GET"])
