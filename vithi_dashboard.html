@@ -653,10 +653,8 @@
           <thead>
             <tr><th>Dataset</th><th>Database & Schema</th><th>Last Updated At</th><th>SLA Target</th><th>Age (Hours)</th><th>Freshness Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="freshnessTableBody">
             <tr><td><strong>dim_employees</strong></td><td>ECOMMERCE.FINAL_DATA</td><td>2026-08-07 07:50:30</td><td>24 Hours</td><td>2.1 hrs</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>FRESH</span></td></tr>
-            <tr><td><strong>stg_employees</strong></td><td>HR_ANALYTICS.RAW_DATA</td><td>2026-08-06 10:59:48</td><td>12 Hours</td><td>47.5 hrs</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>STALE (SLA Breached)</span></td></tr>
-            <tr><td><strong>dim_customer</strong></td><td>ECOMMERCE.MARTS</td><td>2026-08-07 07:55:34</td><td>24 Hours</td><td>1.9 hrs</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>FRESH</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -668,10 +666,8 @@
           <thead>
             <tr><th>Dataset</th><th>Historical Avg Rows</th><th>Current Loaded Rows</th><th>Row Delta %</th><th>Volume Alert Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="volumeTableBody">
             <tr><td><strong>dim_employees</strong></td><td>100 rows</td><td>106 rows</td><td>+6.0%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>NORMAL</span></td></tr>
-            <tr><td><strong>stg_employees</strong></td><td>500 rows</td><td>0 rows</td><td>-100%</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>CRITICAL: ZERO_ROWS_LOADED</span></td></tr>
-            <tr><td><strong>dim_customer</strong></td><td>1,000,000 rows</td><td>350,000 rows</td><td>-65.0%</td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>WARNING: LOW_VOLUME_ANOMALY</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -683,10 +679,8 @@
           <thead>
             <tr><th>Dataset</th><th>Previous Columns</th><th>Current Columns</th><th>Added / Dropped Columns</th><th>Schema Drift Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="schemaTableBody">
             <tr><td><strong>dim_employees</strong></td><td>5 columns</td><td>4 columns</td><td><span style="color: var(--accent-rose);">Dropped: 'SALARY'</span></td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>DRIFT DETECTED</span></td></tr>
-            <tr><td><strong>dim_customer</strong></td><td>8 columns</td><td>9 columns</td><td><span style="color: var(--accent-emerald);">Added: 'discount_code'</span></td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>COLUMN ADDED</span></td></tr>
-            <tr><td><strong>raw_employees</strong></td><td>5 columns</td><td>5 columns</td><td>None</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>STABLE</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -770,9 +764,8 @@
           <thead>
             <tr><th>Dataset</th><th>Target Column</th><th>Total Records</th><th>Duplicate Count</th><th>Uniqueness Pass Rate</th><th>Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="uniquenessTableBody">
             <tr><td><strong>stg_employees</strong></td><td>employee_id</td><td>106</td><td>0 duplicates</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
-            <tr><td><strong>dim_customer</strong></td><td>customer_key</td><td>350,000</td><td>0 duplicates</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -784,9 +777,8 @@
           <thead>
             <tr><th>Dataset</th><th>Target Column</th><th>Null Record Count</th><th>Completeness %</th><th>Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="completenessTableBody">
             <tr><td><strong>stg_employees</strong></td><td>work_email</td><td>0 nulls</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
-            <tr><td><strong>stg_employees</strong></td><td>hire_date</td><td>12 nulls</td><td>88.6%</td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>WARNING: NULL_THRESHOLD_EXCEEDED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -798,9 +790,8 @@
           <thead>
             <tr><th>Dataset</th><th>Target Column</th><th>Expected Data Type</th><th>Actual Data Type</th><th>Status</th></tr>
           </thead>
-          <tbody>
+          <tbody id="consistencyTableBody">
             <tr><td><strong>stg_employees</strong></td><td>SALARY</td><td>DECIMAL(10,2)</td><td>MISSING_COLUMN</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>FAILED: COLUMN_NOT_FOUND</span></td></tr>
-            <tr><td><strong>dim_customer</strong></td><td>created_at</td><td>TIMESTAMP_NTZ</td><td>TIMESTAMP_NTZ</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1270,12 +1261,116 @@
       }
     }
 
+    async function fetchObservabilityDetails() {
+      try {
+        const res = await fetch('/api/dashboard/observability-details');
+        if (res.ok) {
+          const data = await res.json();
+          
+          const freshBody = document.getElementById('freshnessTableBody');
+          if (freshBody && data.freshness) {
+            freshBody.innerHTML = data.freshness.map(f => `
+              <tr>
+                <td><strong>${f.dataset}</strong></td>
+                <td>${f.database_schema}</td>
+                <td>${f.last_updated}</td>
+                <td>${f.sla_target}</td>
+                <td>${f.age}</td>
+                <td><span class="status-badge ${f.is_fresh ? 'status-success' : 'status-failed'}"><span class="dot ${f.is_fresh ? 'dot-success' : 'dot-failed'}"></span>${f.status}</span></td>
+              </tr>
+            `).join('');
+          }
+
+          const volBody = document.getElementById('volumeTableBody');
+          if (volBody && data.volume) {
+            volBody.innerHTML = data.volume.map(v => `
+              <tr>
+                <td><strong>${v.dataset}</strong></td>
+                <td>${v.historical_avg}</td>
+                <td>${v.current_loaded}</td>
+                <td>${v.delta_pct}</td>
+                <td><span class="status-badge ${v.status === 'NORMAL' ? 'status-success' : (v.status.includes('CRITICAL') ? 'status-failed' : 'status-warning')}"><span class="dot ${v.status === 'NORMAL' ? 'dot-success' : (v.status.includes('CRITICAL') ? 'dot-failed' : 'dot-warning')}"></span>${v.status}</span></td>
+              </tr>
+            `).join('');
+          }
+
+          const schBody = document.getElementById('schemaTableBody');
+          if (schBody && data.schema) {
+            schBody.innerHTML = data.schema.map(s => `
+              <tr>
+                <td><strong>${s.dataset}</strong></td>
+                <td>${s.prev_columns}</td>
+                <td>${s.curr_columns}</td>
+                <td>${s.changes}</td>
+                <td><span class="status-badge ${s.status === 'STABLE' ? 'status-success' : 'status-failed'}"><span class="dot ${s.status === 'STABLE' ? 'dot-success' : 'dot-failed'}"></span>${s.status}</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.log('Error fetching observability details');
+      }
+    }
+
+    async function fetchQualityDetails() {
+      try {
+        const res = await fetch('/api/dashboard/quality-details');
+        if (res.ok) {
+          const data = await res.json();
+
+          const uniqBody = document.getElementById('uniquenessTableBody');
+          if (uniqBody && data.uniqueness) {
+            uniqBody.innerHTML = data.uniqueness.map(u => `
+              <tr>
+                <td><strong>${u.dataset}</strong></td>
+                <td>${u.target_column}</td>
+                <td>${u.total_records}</td>
+                <td>${u.duplicate_count}</td>
+                <td>${u.pass_rate}</td>
+                <td><span class="status-badge ${u.status === 'PASSED' ? 'status-success' : 'status-failed'}"><span class="dot ${u.status === 'PASSED' ? 'dot-success' : 'dot-failed'}"></span>${u.status}</span></td>
+              </tr>
+            `).join('');
+          }
+
+          const compBody = document.getElementById('completenessTableBody');
+          if (compBody && data.completeness) {
+            compBody.innerHTML = data.completeness.map(c => `
+              <tr>
+                <td><strong>${c.dataset}</strong></td>
+                <td>${c.target_column}</td>
+                <td>${c.null_count}</td>
+                <td>${c.completeness}</td>
+                <td><span class="status-badge ${c.status === 'PASSED' ? 'status-success' : 'status-warning'}"><span class="dot ${c.status === 'PASSED' ? 'dot-success' : 'dot-warning'}"></span>${c.status}</span></td>
+              </tr>
+            `).join('');
+          }
+
+          const consBody = document.getElementById('consistencyTableBody');
+          if (consBody && data.consistency) {
+            consBody.innerHTML = data.consistency.map(c => `
+              <tr>
+                <td><strong>${c.dataset}</strong></td>
+                <td>${c.target_column}</td>
+                <td>${c.expected_type}</td>
+                <td>${c.actual_type}</td>
+                <td><span class="status-badge ${c.status === 'PASSED' ? 'status-success' : 'status-failed'}"><span class="dot ${c.status === 'PASSED' ? 'dot-success' : 'dot-failed'}"></span>${c.status}</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.log('Error fetching quality details');
+      }
+    }
+
     // Startup initialization
     renderToolFields();
     renderSourceFields();
     renderTargetFields();
     fetchVithiData();
     fetchPipelines();
+    fetchObservabilityDetails();
+    fetchQualityDetails();
   </script>
 </body>
 </html>
