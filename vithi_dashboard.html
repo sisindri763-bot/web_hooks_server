@@ -242,9 +242,11 @@
     }
     .status-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
     .status-failed { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+    .status-warning { background: rgba(245, 158, 11, 0.15); color: #fde047; }
     .dot { width: 6px; height: 6px; border-radius: 50%; }
     .dot-success { background: #34d399; }
     .dot-failed { background: #fb7185; }
+    .dot-warning { background: #fde047; }
 
     /* Accordion Expanded Detail Drawer */
     tr.detail-row { display: none; }
@@ -263,7 +265,7 @@
       max-height: 140px; overflow-y: auto; white-space: pre-wrap;
     }
 
-    /* Connectors 2-Column Layout (Matching index.html) */
+    /* Connectors 2-Column Layout */
     .layout-grid {
       display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.25rem; align-items: start;
     }
@@ -630,16 +632,63 @@
       <div class="panel-card" id="pipelinesContainer">Loading pipeline configurations...</div>
     </section>
 
-    <!-- TAB 4: OBSERVABILITY -->
+    <!-- TAB 4: OBSERVABILITY (Freshness SLA, Volume Engine & Schema Drift Tables) -->
     <section id="tab-observability" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Data Observability Analytics</h1><p class="page-sub">Freshness, Volume Anomaly Detection & Schema Drift</p></div></div>
+      <div class="top-bar"><div><h1 class="page-title">Data Observability Analytics Engine</h1><p class="page-sub">Freshness SLA Monitoring, Volume Anomaly Detection & Schema Drift Tracker</p></div></div>
+      
+      <!-- Observability Scorecards -->
       <div class="score-grid">
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Freshness SLA</div><div class="score-val">91.3%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Freshness SLA</div><div class="score-val" id="obsScoreFreshness">91.3%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Volume Integrity</div><div class="score-val">93.7%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Schema Drift</div><div class="score-val">98.6%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
+      </div>
+
+      <!-- 1. FRESHNESS SLA MONITORING TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">🕒 Data Freshness SLA Tracker</div></div>
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Database & Schema</th><th>Last Updated At</th><th>SLA Target</th><th>Age (Hours)</th><th>Freshness Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>dim_employees</strong></td><td>ECOMMERCE.FINAL_DATA</td><td>2026-08-07 07:50:30</td><td>24 Hours</td><td>2.1 hrs</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>FRESH</span></td></tr>
+            <tr><td><strong>stg_employees</strong></td><td>HR_ANALYTICS.RAW_DATA</td><td>2026-08-06 10:59:48</td><td>12 Hours</td><td>47.5 hrs</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>STALE (SLA Breached)</span></td></tr>
+            <tr><td><strong>dim_customer</strong></td><td>ECOMMERCE.MARTS</td><td>2026-08-07 07:55:34</td><td>24 Hours</td><td>1.9 hrs</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>FRESH</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. VOLUME ANOMALY DETECTION ENGINE TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">📊 Volume Anomaly Detection Engine</div></div>
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Historical Avg Rows</th><th>Current Loaded Rows</th><th>Row Delta %</th><th>Volume Alert Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>dim_employees</strong></td><td>100 rows</td><td>106 rows</td><td>+6.0%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>NORMAL</span></td></tr>
+            <tr><td><strong>stg_employees</strong></td><td>500 rows</td><td>0 rows</td><td>-100%</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>CRITICAL: ZERO_ROWS_LOADED</span></td></tr>
+            <tr><td><strong>dim_customer</strong></td><td>1,000,000 rows</td><td>350,000 rows</td><td>-65.0%</td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>WARNING: LOW_VOLUME_ANOMALY</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. SCHEMA DRIFT TRACKER TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">🧬 Schema Drift Tracker</div></div>
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Previous Columns</th><th>Current Columns</th><th>Added / Dropped Columns</th><th>Schema Drift Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>dim_employees</strong></td><td>5 columns</td><td>4 columns</td><td><span style="color: var(--accent-rose);">Dropped: 'SALARY'</span></td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>DRIFT DETECTED</span></td></tr>
+            <tr><td><strong>dim_customer</strong></td><td>8 columns</td><td>9 columns</td><td><span style="color: var(--accent-emerald);">Added: 'discount_code'</span></td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>COLUMN ADDED</span></td></tr>
+            <tr><td><strong>raw_employees</strong></td><td>5 columns</td><td>5 columns</td><td>None</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>STABLE</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -710,18 +759,48 @@
       </div>
     </section>
 
-    <!-- TAB 8: DATA QUALITY -->
+    <!-- TAB 8: DATA QUALITY (Uniqueness, Completeness & Type Consistency Tables) -->
     <section id="tab-quality" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions & Tests</h1><p class="page-sub">Uniqueness, Non-Null & Schema Consistency Tests</p></div></div>
+      <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions & Tests Engine</h1><p class="page-sub">Uniqueness, Non-Null & Schema Consistency Test Breakdown</p></div></div>
+      
+      <!-- 1. UNIQUENESS & PRIMARY KEY TESTS TABLE -->
       <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">🔑 Uniqueness & Primary Key Tests</div></div>
         <table>
           <thead>
-            <tr><th>Dataset</th><th>Test Name</th><th>Type</th><th>Status</th><th>Pass Rate</th></tr>
+            <tr><th>Dataset</th><th>Target Column</th><th>Total Records</th><th>Duplicate Count</th><th>Uniqueness Pass Rate</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <tr><td><strong>stg_employees</strong></td><td>unique_employee_id</td><td>Uniqueness</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>Passed</span></td><td>100%</td></tr>
-            <tr><td><strong>stg_employees</strong></td><td>not_null_email</td><td>Null Check</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>Passed</span></td><td>100%</td></tr>
-            <tr><td><strong>dim_employees</strong></td><td>salary_column_check</td><td>Schema Check</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span></td><td>0%</td></tr>
+            <tr><td><strong>stg_employees</strong></td><td>employee_id</td><td>106</td><td>0 duplicates</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
+            <tr><td><strong>dim_customer</strong></td><td>customer_key</td><td>350,000</td><td>0 duplicates</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 2. NULL & COMPLETENESS CHECKS TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">🚫 Null & Completeness Checks</div></div>
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Target Column</th><th>Null Record Count</th><th>Completeness %</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>stg_employees</strong></td><td>work_email</td><td>0 nulls</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
+            <tr><td><strong>stg_employees</strong></td><td>hire_date</td><td>12 nulls</td><td>88.6%</td><td><span class="status-badge status-warning"><span class="dot dot-warning"></span>WARNING: NULL_THRESHOLD_EXCEEDED</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. SCHEMA & DATA TYPE CONSISTENCY CHECKS TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">📐 Schema & Data Type Consistency Checks</div></div>
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Target Column</th><th>Expected Data Type</th><th>Actual Data Type</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>stg_employees</strong></td><td>SALARY</td><td>DECIMAL(10,2)</td><td>MISSING_COLUMN</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>FAILED: COLUMN_NOT_FOUND</span></td></tr>
+            <tr><td><strong>dim_customer</strong></td><td>created_at</td><td>TIMESTAMP_NTZ</td><td>TIMESTAMP_NTZ</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1134,8 +1213,12 @@
           document.getElementById('kpiFailed').textContent = data.failed_pipelines;
           document.getElementById('kpiIncidents').textContent = data.incidents_count;
           document.getElementById('kpiDatasets').textContent = data.datasets_count;
-          document.getElementById('kpiFreshness').textContent = data.data_freshness;
-          document.getElementById('scoreFreshness').textContent = data.data_freshness; // Synchronized Freshness
+          
+          // Synchronized Freshness
+          const freshVal = data.data_freshness || '91.3%';
+          document.getElementById('kpiFreshness').textContent = freshVal;
+          document.getElementById('scoreFreshness').textContent = freshVal;
+          document.getElementById('obsScoreFreshness').textContent = freshVal;
         }
 
         const resTable = await fetch('/api/dashboard/recent-runs');
