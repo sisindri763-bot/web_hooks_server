@@ -471,6 +471,13 @@ def api_dashboard_recent_runs():
     return jsonify({"runs": table}), 200
 
 
+@app.route("/api/pipelines", methods=["GET"])
+def api_list_pipelines():
+    pipelines = list_pipelines()
+    masked = [_mask_credentials(p) for p in pipelines]
+    return jsonify({"count": len(masked), "pipelines": masked}), 200
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({
