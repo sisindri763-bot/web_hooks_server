@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VITHI — Enterprise Data Observability & Lineage</title>
+  <title>VITHI — Enterprise Data Observability & Connectors Hub</title>
   
   <!-- Modern Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   
   <!-- Chart.js for Live Interactive Graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -131,7 +131,7 @@
       border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-size: 0.82rem;
     }
 
-    /* KPI Grid */
+    /* Clickable 6 Top Metric Cards Grid */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -143,8 +143,9 @@
       border-radius: 12px;
       padding: 0.85rem 0.9rem;
       display: flex; flex-direction: column; justify-content: space-between;
-      min-width: 0;
+      min-width: 0; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
     }
+    .kpi-card:hover { transform: translateY(-2px); border-color: var(--accent-indigo); }
     .kpi-header { display: flex; justify-content: space-between; align-items: center; }
     .kpi-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
     .kpi-val { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; margin: 0.25rem 0 0.15rem 0; }
@@ -194,12 +195,13 @@
     .badge-p2 { background: rgba(245, 158, 11, 0.2); color: #fde047; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; flex-shrink: 0; }
     .badge-p3 { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; flex-shrink: 0; }
 
-    /* Observability Scorecards */
+    /* Clickable Observability Scorecards */
     .score-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
     .score-card {
       background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border);
-      padding: 0.75rem; border-radius: 10px; text-align: center;
+      padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer; transition: transform 0.2s;
     }
+    .score-card:hover { transform: translateY(-2px); border-color: var(--accent-indigo); }
     .score-val { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--accent-emerald); margin-top: 0.15rem; }
 
     /* Middle Layout Grid */
@@ -215,7 +217,7 @@
     .bar-fill-emerald { height: 100%; background: var(--accent-emerald); border-radius: 3px; }
     .bar-fill-rose { height: 100%; background: var(--accent-rose); border-radius: 3px; }
 
-    /* Lineage Node Graph Display - Responsive Fix */
+    /* Lineage Node Card */
     .lineage-card {
       background: rgba(0, 0, 0, 0.25); border: 1px dashed var(--panel-border);
       border-radius: 10px; padding: 0.65rem 0.5rem; display: flex; align-items: center; justify-content: space-between;
@@ -260,11 +262,27 @@
       padding: 0.75rem; border-radius: 8px; font-family: monospace; font-size: 0.75rem;
       max-height: 140px; overflow-y: auto; white-space: pre-wrap;
     }
+
+    /* Connectors Tab Form Styles */
+    .form-fieldset {
+      background: rgba(10, 15, 29, 0.5); border: 1px solid var(--panel-border);
+      border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+    }
+    .fieldset-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #a5b4fc; margin-bottom: 0.75rem; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+    .form-group { margin-bottom: 0.75rem; }
+    label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-transform: uppercase; }
+    input, select {
+      width: 100%; padding: 0.6rem 0.8rem; background: rgba(11, 15, 25, 0.75);
+      border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-main);
+      font-size: 0.82rem; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent-indigo); }
   </style>
 </head>
 <body>
 
-  <!-- LEFT NAVIGATION SIDEBAR (Infrastructure & Cost Removed) -->
+  <!-- LEFT NAVIGATION SIDEBAR (Includes Connectors) -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-icon">⚡</div>
@@ -276,7 +294,8 @@
 
     <nav class="nav-list">
       <a class="nav-item active" onclick="switchTab('overview', this)"><span class="nav-icon">🌌</span> Overview</a>
-      <a class="nav-item" onclick="switchTab('pipelines', this)"><span class="nav-icon">🔌</span> Pipelines</a>
+      <a class="nav-item" onclick="switchTab('connectors', this)"><span class="nav-icon">🔌</span> Connectors</a>
+      <a class="nav-item" onclick="switchTab('pipelines', this)"><span class="nav-icon">⚡</span> Pipelines</a>
       <a class="nav-item" onclick="switchTab('observability', this)"><span class="nav-icon">👁️</span> Data Observability</a>
       <a class="nav-item" onclick="switchTab('lineage', this)"><span class="nav-icon">🕸️</span> Lineage</a>
       <a class="nav-item" onclick="switchTab('incidents', this)"><span class="nav-icon">🚨</span> Incidents</a>
@@ -311,38 +330,38 @@
           <select class="control-select"><option>Environment: Production</option></select>
           <select class="control-select"><option>🕒 Last 24 hours</option></select>
           <button class="btn-ctrl" onclick="fetchVithiData()">🔄 5m</button>
-          <button class="btn-primary">+ Add Widget</button>
+          <button class="btn-primary" onclick="switchTabById('connectors')">+ Add Connector</button>
         </div>
       </div>
 
-      <!-- 6 KPI CARDS -->
+      <!-- CLICKABLE 6 KPI CARDS -->
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('pipelines')">
           <div class="kpi-header"><span class="kpi-label">Pipelines</span><span>🔌</span></div>
           <div id="kpiPipelines" class="kpi-val">247</div>
           <div class="kpi-delta delta-up">▲ 12 vs yesterday</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('metrics')">
           <div class="kpi-header"><span class="kpi-label">Success Rate</span><span>📈</span></div>
           <div id="kpiSuccess" class="kpi-val">96.2%</div>
           <div class="kpi-delta delta-up">▲ 2.1% vs yesterday</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('incidents')">
           <div class="kpi-header"><span class="kpi-label">Failed Pipelines</span><span>🔴</span></div>
           <div id="kpiFailed" class="kpi-val">9</div>
           <div class="kpi-delta delta-down">▼ 3 vs yesterday</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('incidents')">
           <div class="kpi-header"><span class="kpi-label">Incidents</span><span>🛡️</span></div>
           <div id="kpiIncidents" class="kpi-val">5</div>
           <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Datasets</span><span>🗄️</span></div>
           <div id="kpiDatasets" class="kpi-val">1,342</div>
           <div class="kpi-delta delta-up">▲ 68 vs yesterday</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Data Freshness</span><span>🟢</span></div>
           <div id="kpiFreshness" class="kpi-val">91.3%</div>
           <div class="kpi-delta delta-up">▲ 1.8% vs yesterday</div>
@@ -401,16 +420,16 @@
         </div>
       </div>
 
-      <!-- OBSERVABILITY SCORECARDS -->
+      <!-- CLICKABLE OBSERVABILITY SCORECARDS (Synchronized Freshness 91.3%) -->
       <div class="panel-card">
         <div class="panel-head"><div class="panel-title">Data Observability Pillars</div></div>
         <div class="score-grid">
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div class="score-val">91.3%</div></div>
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div class="score-val">93.7%</div></div>
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div class="score-val">98.6%</div></div>
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
-          <div class="score-card"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
+          <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div id="scoreFreshness" class="score-val">91.3%</div></div>
+          <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div class="score-val">93.7%</div></div>
+          <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div class="score-val">98.6%</div></div>
+          <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
+          <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
+          <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
         </div>
       </div>
 
@@ -481,16 +500,67 @@
       </div>
     </section>
 
-    <!-- TAB 2: PIPELINES -->
+    <!-- TAB 2: CONNECTORS (Integrated DataBridge Registration Hub) -->
+    <section id="tab-connectors" class="tab-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">🔌 Pipeline Connectors Registration Hub</h1><p class="page-sub">Register Source, Target & dbt Adapters into AWS RDS MySQL</p></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">🔌 Register New Pipeline Connector</div></div>
+        
+        <div id="connectorBanner" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: #34d399;">✓ Webhook Endpoint Generated:</div>
+          <div id="connectorWebhookUrl" style="font-family: monospace; font-size: 0.8rem; color: #a7f3d0; margin-top: 0.25rem;"></div>
+        </div>
+
+        <form id="connectorForm" onsubmit="submitConnectorForm(event)">
+          <div class="form-fieldset">
+            <div class="fieldset-title">📌 Pipeline Identifiers</div>
+            <div class="form-row">
+              <div class="form-group"><label>Job / Pipeline ID *</label><input type="text" id="connJobId" placeholder="e.g. 70506183136587" required></div>
+              <div class="form-group"><label>User ID *</label><input type="text" id="connUserId" placeholder="e.g. 70506183153835" required></div>
+              <div class="form-group"><label>Pipeline Name</label><input type="text" id="connPipelineName" placeholder="e.g. run_hr_pipeline"></div>
+            </div>
+          </div>
+
+          <div class="form-fieldset">
+            <div class="fieldset-title">📥 Source Adapter</div>
+            <div class="form-row">
+              <div class="form-group"><label>System Type</label><select id="connSourceType"><option value="snowflake">Snowflake</option><option value="mysql">MySQL</option></select></div>
+              <div class="form-group"><label>Host / Account</label><input type="text" id="connSourceHost" placeholder="e.g. eg250.us1"></div>
+              <div class="form-group"><label>Database</label><input type="text" id="connSourceDb" placeholder="e.g. HR_ANALYTICS"></div>
+              <div class="form-group"><label>Schema</label><input type="text" id="connSourceSchema" placeholder="e.g. RAW_DATA"></div>
+              <div class="form-group"><label>Table</label><input type="text" id="connSourceTable" placeholder="e.g. raw_employees"></div>
+            </div>
+          </div>
+
+          <div class="form-fieldset">
+            <div class="fieldset-title">📤 Target Adapter</div>
+            <div class="form-row">
+              <div class="form-group"><label>System Type</label><select id="connTargetType"><option value="snowflake">Snowflake</option><option value="mysql">MySQL</option></select></div>
+              <div class="form-group"><label>Host / Account</label><input type="text" id="connTargetHost" placeholder="e.g. eg250.us1"></div>
+              <div class="form-group"><label>Database</label><input type="text" id="connTargetDb" placeholder="e.g. ECOMMERCE"></div>
+              <div class="form-group"><label>Schema</label><input type="text" id="connTargetSchema" placeholder="e.g. FINAL_DATA"></div>
+              <div class="form-group"><label>Table</label><input type="text" id="connTargetTable" placeholder="e.g. dim_employees"></div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem;">⚡ Generate Webhook & Register Connector</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: PIPELINES -->
     <section id="tab-pipelines" class="tab-section">
       <div class="top-bar">
         <div><h1 class="page-title">Active Connector Pipelines</h1><p class="page-sub">Registered Data Pipelines & Connectors in AWS RDS MySQL</p></div>
-        <button class="btn-primary" onclick="window.location.href='/'">+ Register New Connector</button>
+        <button class="btn-primary" onclick="switchTabById('connectors')">+ Register New Connector</button>
       </div>
       <div class="panel-card" id="pipelinesContainer">Loading pipeline configurations...</div>
     </section>
 
-    <!-- TAB 3: OBSERVABILITY -->
+    <!-- TAB 4: OBSERVABILITY -->
     <section id="tab-observability" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Data Observability Analytics</h1><p class="page-sub">Freshness, Volume Anomaly Detection & Schema Drift</p></div></div>
       <div class="score-grid">
@@ -503,7 +573,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: INTERACTIVE FULL LINEAGE GRAPH (ALL PIPELINES) -->
+    <!-- TAB 5: INTERACTIVE FULL LINEAGE GRAPH -->
     <section id="tab-lineage" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Interactive Data Lineage Graph</h1><p class="page-sub">Click any pipeline node to inspect database, schema, and column data flow</p></div></div>
       <div class="panel-card" style="gap: 1.5rem;" id="lineageFullContainer">
@@ -546,29 +616,10 @@
           </div>
         </div>
 
-        <!-- Pipeline 3: Stock Data Pipeline -->
-        <div class="detail-container" style="cursor: pointer;" onclick="toggleLineageDetails('lineage-stock')">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 700; font-size: 0.95rem; color: var(--accent-purple);">⚡ Pipeline: run_stg_stock_data</div>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Click to expand database & schema details</span>
-          </div>
-          <div class="lineage-card" style="padding: 1rem; margin-top: 0.5rem;">
-            <div class="node-box" style="padding: 0.75rem; max-width: 30%;">🗄️ Snowflake Warehouse<br/><strong>RAW.STOCK_DATA_RAW</strong></div>
-            <div style="font-size: 1.2rem; color: var(--accent-purple);">════►</div>
-            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5);">⚙️ dbt Cloud Job<br/><strong>run_stg_stock_data</strong></div>
-            <div style="font-size: 1.2rem; color: var(--accent-purple);">════►</div>
-            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5);">❄️ Snowflake Warehouse<br/><strong>STAGING.STG_STOCK_DATA</strong></div>
-          </div>
-          <div id="lineage-stock" style="display: none; font-size: 0.78rem; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
-            <div><strong>Source Schema:</strong> database=RAW, schema=PUBLIC, object=STOCK_DATA_RAW (Columns: SYMBOL, DATE, OPEN, CLOSE, VOLUME)</div>
-            <div style="margin-top: 0.35rem;"><strong>Target Schema:</strong> database=STAGING, schema=PUBLIC, object=STG_STOCK_DATA (Columns: SYMBOL, TRADE_DATE, OPEN_PRICE, CLOSE_PRICE)</div>
-          </div>
-        </div>
-
       </div>
     </section>
 
-    <!-- TAB 5: INCIDENTS -->
+    <!-- TAB 6: INCIDENTS -->
     <section id="tab-incidents" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Incidents & Anomaly Feed</h1><p class="page-sub">Live Alert Incidents & Root Cause Error Logs</p></div></div>
       <div class="panel-card">
@@ -580,7 +631,7 @@
       </div>
     </section>
 
-    <!-- TAB 6: ALERTS -->
+    <!-- TAB 7: ALERTS -->
     <section id="tab-alerts" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Alert Notifications</h1><p class="page-sub">Configured Webhook & Email Alerts</p></div></div>
       <div class="panel-card">
@@ -589,7 +640,7 @@
       </div>
     </section>
 
-    <!-- TAB 7: DATA QUALITY -->
+    <!-- TAB 8: DATA QUALITY -->
     <section id="tab-quality" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions & Tests</h1><p class="page-sub">Uniqueness, Non-Null & Schema Consistency Tests</p></div></div>
       <div class="panel-card">
@@ -606,13 +657,13 @@
       </div>
     </section>
 
-    <!-- TAB 8: LOGS -->
+    <!-- TAB 9: LOGS -->
     <section id="tab-logs" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Live Execution Logs</h1><p class="page-sub">Console Execution Logs & dbt Cloud Artifacts</p></div></div>
       <div class="panel-card"><div class="log-terminal" id="logsTerminal">Loading execution logs...</div></div>
     </section>
 
-    <!-- TAB 9: METRICS -->
+    <!-- TAB 10: METRICS -->
     <section id="tab-metrics" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, Row Throughput & Failure Trends</p></div></div>
       <div class="row-grid-middle">
@@ -621,7 +672,7 @@
       </div>
     </section>
 
-    <!-- TAB 10: REPORTS -->
+    <!-- TAB 11: REPORTS -->
     <section id="tab-reports" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Daily Data SLA & Quality Reports</h1><p class="page-sub">Automated Executive Summaries</p></div></div>
       <div class="panel-card">
@@ -630,7 +681,7 @@
       </div>
     </section>
 
-    <!-- TAB 11: SETTINGS -->
+    <!-- TAB 12: SETTINGS -->
     <section id="tab-settings" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">System Settings & Infrastructure</h1><p class="page-sub">AWS RDS MySQL Storage & Webhook Engine Credentials</p></div></div>
       <div class="panel-card">
@@ -663,6 +714,49 @@
       const el = document.getElementById(id);
       if (el) {
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    // Submit Connector Registration Form into AWS RDS MySQL
+    async function submitConnectorForm(e) {
+      e.preventDefault();
+      const payload = {
+        job_id: document.getElementById('connJobId').value.trim(),
+        user_id: document.getElementById('connUserId').value.trim(),
+        pipeline_name: document.getElementById('connPipelineName').value.trim(),
+        tool_type: 'dbt',
+        tool_config: {},
+        source_type: document.getElementById('connSourceType').value,
+        source_config: {
+          account: document.getElementById('connSourceHost').value.trim(),
+          database: document.getElementById('connSourceDb').value.trim(),
+          schema: document.getElementById('connSourceSchema').value.trim(),
+          table: document.getElementById('connSourceTable').value.trim(),
+        },
+        target_type: document.getElementById('connTargetType').value,
+        target_config: {
+          account: document.getElementById('connTargetHost').value.trim(),
+          database: document.getElementById('connTargetDb').value.trim(),
+          schema: document.getElementById('connTargetSchema').value.trim(),
+          table: document.getElementById('connTargetTable').value.trim(),
+        }
+      };
+
+      try {
+        const res = await fetch('/admin/register-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('connectorBanner').style.display = 'block';
+          document.getElementById('connectorWebhookUrl').textContent = data.webhook_url;
+          alert('✓ Pipeline Connector Registered Successfully in AWS RDS MySQL!');
+          fetchVithiData();
+        }
+      } catch (err) {
+        alert('Failed to register connector.');
       }
     }
 
@@ -720,7 +814,6 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
     });
 
-    // Toggle Accordion Detail Drawer
     function toggleRunDetails(runId) {
       const detailRow = document.getElementById(`detail-${runId}`);
       if (detailRow) {
@@ -740,6 +833,7 @@
           document.getElementById('kpiIncidents').textContent = data.incidents_count;
           document.getElementById('kpiDatasets').textContent = data.datasets_count;
           document.getElementById('kpiFreshness').textContent = data.data_freshness;
+          document.getElementById('scoreFreshness').textContent = data.data_freshness; // Synchronized Freshness
         }
 
         const resTable = await fetch('/api/dashboard/recent-runs');
