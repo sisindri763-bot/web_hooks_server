@@ -263,26 +263,37 @@
       max-height: 140px; overflow-y: auto; white-space: pre-wrap;
     }
 
-    /* Connectors Tab Form Styles */
+    /* Connectors 2-Column Layout (Matching index.html) */
+    .layout-grid {
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.25rem; align-items: start;
+    }
     .form-fieldset {
       background: rgba(10, 15, 29, 0.5); border: 1px solid var(--panel-border);
       border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
     }
     .fieldset-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #a5b4fc; margin-bottom: 0.75rem; }
-    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
     .form-group { margin-bottom: 0.75rem; }
     label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-transform: uppercase; }
     input, select {
-      width: 100%; padding: 0.6rem 0.8rem; background: rgba(11, 15, 25, 0.75);
+      width: 100%; padding: 0.65rem 0.85rem; background: rgba(11, 15, 25, 0.75);
       border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-main);
-      font-size: 0.82rem; outline: none;
+      font-size: 0.82rem; outline: none; transition: all 0.2s;
     }
-    input:focus, select:focus { border-color: var(--accent-indigo); }
+    input:focus, select:focus { border-color: var(--accent-indigo); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+    .btn-action {
+      background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 0.35rem 0.7rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-  <!-- LEFT NAVIGATION SIDEBAR (Includes Connectors) -->
+  <!-- LEFT NAVIGATION SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-icon">⚡</div>
@@ -500,54 +511,113 @@
       </div>
     </section>
 
-    <!-- TAB 2: CONNECTORS (Integrated DataBridge Registration Hub) -->
+    <!-- TAB 2: CONNECTORS (Exact DataBridge 2-Column Hub from index.html) -->
     <section id="tab-connectors" class="tab-section">
       <div class="top-bar">
-        <div><h1 class="page-title">🔌 Pipeline Connectors Registration Hub</h1><p class="page-sub">Register Source, Target & dbt Adapters into AWS RDS MySQL</p></div>
+        <div><h1 class="page-title">🔌 Pipeline Connectors Hub</h1><p class="page-sub">Configure Source, Target & Orchestrator Webhook Adapters in AWS RDS MySQL</p></div>
       </div>
 
-      <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">🔌 Register New Pipeline Connector</div></div>
+      <!-- GENERATED WEBHOOK URL BANNER -->
+      <div id="webhookBanner" style="display: none; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <div style="font-size: 0.85rem; font-weight: 800; color: #34d399; text-transform: uppercase;">✓ Webhook Endpoint Generated & Saved to AWS RDS MySQL</div>
+          <button style="background: transparent; border: none; color: var(--text-muted); cursor: pointer;" onclick="document.getElementById('webhookBanner').style.display='none'">✕</button>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted);">Copy this Webhook URL and paste it into your dbt Cloud Settings under <strong>Webhooks</strong>:</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(7, 10, 18, 0.9); padding: 0.8rem 1.1rem; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.3); margin-top: 0.5rem;">
+          <span id="webhookUrlCode" style="font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #a7f3d0; word-break: break-all;"></span>
+          <button id="copyBtn" class="btn-action" onclick="copyWebhookUrl()">📋 Copy Webhook URL</button>
+        </div>
+      </div>
+
+      <!-- 2-COLUMN CONNECTOR LAYOUT -->
+      <div class="layout-grid">
         
-        <div id="connectorBanner" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-          <div style="font-size: 0.85rem; font-weight: 700; color: #34d399;">✓ Webhook Endpoint Generated:</div>
-          <div id="connectorWebhookUrl" style="font-family: monospace; font-size: 0.8rem; color: #a7f3d0; margin-top: 0.25rem;"></div>
+        <!-- LEFT PANEL: REGISTER PIPELINE CONNECTOR FORM -->
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">🔌 Register Pipeline Connector</div></div>
+
+          <form id="pipelineForm" onsubmit="submitPipeline(event)">
+            <!-- General Pipeline Info -->
+            <div class="form-fieldset">
+              <div class="fieldset-title">📌 Pipeline Identifiers</div>
+              <div class="form-row">
+                <div class="form-group"><label for="jobId">Job / Pipeline ID *</label><input type="text" id="jobId" placeholder="e.g. 70506183136587" required></div>
+                <div class="form-group"><label for="userTenantId">User / Tenant ID *</label><input type="text" id="userTenantId" placeholder="e.g. 70506183153835" value="70506183153835" required></div>
+              </div>
+            </div>
+
+            <!-- Orchestrator Engine -->
+            <div class="form-fieldset">
+              <div class="fieldset-title">⚙️ Orchestrator Tool</div>
+              <div class="form-group">
+                <label for="toolType">Select Platform *</label>
+                <select id="toolType" onchange="renderToolFields()">
+                  <option value="dbt" selected>dbt Cloud</option>
+                  <option value="airbyte">Airflow / Airbyte</option>
+                </select>
+              </div>
+              <div id="toolFields"></div>
+            </div>
+
+            <!-- Source Data Connector -->
+            <div class="form-fieldset">
+              <div class="fieldset-title">📥 Source Data Connector</div>
+              <div class="form-group">
+                <label for="sourceType">Select Platform *</label>
+                <select id="sourceType" onchange="renderSourceFields()">
+                  <option value="snowflake" selected>Snowflake (Data Warehouse)</option>
+                  <option value="mysql">MySQL Database</option>
+                  <option value="csv">CSV File</option>
+                  <option value="excel">Excel Spreadsheet</option>
+                </select>
+              </div>
+              <div id="sourceFields"></div>
+            </div>
+
+            <!-- Target Data Connector -->
+            <div class="form-fieldset">
+              <div class="fieldset-title">📤 Target Data Connector</div>
+              <div class="form-group">
+                <label for="targetType">Select Platform *</label>
+                <select id="targetType" onchange="renderTargetFields()">
+                  <option value="snowflake" selected>Snowflake (Data Warehouse)</option>
+                  <option value="mysql">MySQL Database</option>
+                  <option value="csv">CSV File</option>
+                  <option value="excel">Excel Spreadsheet</option>
+                </select>
+              </div>
+              <div id="targetFields"></div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem; font-weight: 800;">⚡ Save Connector & Generate Webhook URL</button>
+          </form>
         </div>
 
-        <form id="connectorForm" onsubmit="submitConnectorForm(event)">
-          <div class="form-fieldset">
-            <div class="fieldset-title">📌 Pipeline Identifiers</div>
-            <div class="form-row">
-              <div class="form-group"><label>Job / Pipeline ID *</label><input type="text" id="connJobId" placeholder="e.g. 70506183136587" required></div>
-              <div class="form-group"><label>User ID *</label><input type="text" id="connUserId" placeholder="e.g. 70506183153835" required></div>
-              <div class="form-group"><label>Pipeline Name</label><input type="text" id="connPipelineName" placeholder="e.g. run_hr_pipeline"></div>
-            </div>
+        <!-- RIGHT PANEL: ACTIVE CONNECTORS CONSOLE -->
+        <div class="panel-card">
+          <div class="panel-head">
+            <div class="panel-title">📜 Active Connectors (AWS RDS MySQL)</div>
+            <button class="btn-action" onclick="fetchPipelines()">🔄 Refresh</button>
           </div>
 
-          <div class="form-fieldset">
-            <div class="fieldset-title">📥 Source Adapter</div>
-            <div class="form-row">
-              <div class="form-group"><label>System Type</label><select id="connSourceType"><option value="snowflake">Snowflake</option><option value="mysql">MySQL</option></select></div>
-              <div class="form-group"><label>Host / Account</label><input type="text" id="connSourceHost" placeholder="e.g. eg250.us1"></div>
-              <div class="form-group"><label>Database</label><input type="text" id="connSourceDb" placeholder="e.g. HR_ANALYTICS"></div>
-              <div class="form-group"><label>Schema</label><input type="text" id="connSourceSchema" placeholder="e.g. RAW_DATA"></div>
-              <div class="form-group"><label>Table</label><input type="text" id="connSourceTable" placeholder="e.g. raw_employees"></div>
-            </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Job ID</th>
+                  <th>Source</th>
+                  <th>Target</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pipelineTableBody">
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading active connectors from AWS RDS MySQL...</td></tr>
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div class="form-fieldset">
-            <div class="fieldset-title">📤 Target Adapter</div>
-            <div class="form-row">
-              <div class="form-group"><label>System Type</label><select id="connTargetType"><option value="snowflake">Snowflake</option><option value="mysql">MySQL</option></select></div>
-              <div class="form-group"><label>Host / Account</label><input type="text" id="connTargetHost" placeholder="e.g. eg250.us1"></div>
-              <div class="form-group"><label>Database</label><input type="text" id="connTargetDb" placeholder="e.g. ECOMMERCE"></div>
-              <div class="form-group"><label>Schema</label><input type="text" id="connTargetSchema" placeholder="e.g. FINAL_DATA"></div>
-              <div class="form-group"><label>Table</label><input type="text" id="connTargetTable" placeholder="e.g. dim_employees"></div>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem;">⚡ Generate Webhook & Register Connector</button>
-        </form>
       </div>
     </section>
 
@@ -702,7 +772,7 @@
       const targetSec = document.getElementById(`tab-${tabId}`);
       if (targetSec) targetSec.classList.add('active');
 
-      if (tabId === 'pipelines') fetchPipelinesTab();
+      if (tabId === 'pipelines' || tabId === 'connectors') fetchPipelines();
     }
 
     function switchTabById(tabId) {
@@ -717,29 +787,188 @@
       }
     }
 
-    // Submit Connector Registration Form into AWS RDS MySQL
-    async function submitConnectorForm(e) {
+    // Dynamic Render Functions from index.html
+    function renderToolFields() {
+      const type = document.getElementById('toolType').value;
+      const container = document.getElementById('toolFields');
+      if (type === 'dbt') {
+        container.innerHTML = `
+          <div class="form-row">
+            <div class="form-group"><label>Account ID *</label><input type="text" id="dbt_account_id" placeholder="e.g. 70506183153835" required></div>
+            <div class="form-group"><label>API Token *</label><input type="password" id="dbt_api_token" placeholder="dbtc_aws..." required></div>
+          </div>
+          <div class="form-group">
+            <label>dbt Base URL</label>
+            <input type="text" id="dbt_base_url" placeholder="https://eg250.us1.dbt.com" value="https://eg250.us1.dbt.com">
+          </div>
+        `;
+      } else {
+        container.innerHTML = `<div class="form-group"><label>Airflow Webhook URL *</label><input type="text" id="af_url" placeholder="e.g. http://airflow.example.com" required></div>`;
+      }
+    }
+
+    function renderSourceFields() {
+      const type = document.getElementById('sourceType').value;
+      const container = document.getElementById('sourceFields');
+      if (type === 'snowflake') {
+        container.innerHTML = `
+          <div class="form-row">
+            <div class="form-group"><label>Account *</label><input type="text" id="src_sf_account" placeholder="e.g. eg250.us1" required></div>
+            <div class="form-group"><label>User *</label><input type="text" id="src_sf_user" placeholder="e.g. db_user" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Password *</label><input type="password" id="src_sf_pass" placeholder="••••••••••••" required></div>
+            <div class="form-group"><label>Warehouse *</label><input type="text" id="src_sf_wh" placeholder="e.g. COMPUTE_WH" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Database *</label><input type="text" id="src_sf_db" placeholder="e.g. HR_ANALYTICS" required></div>
+            <div class="form-group"><label>Schema *</label><input type="text" id="src_sf_schema" placeholder="e.g. RAW_DATA" required></div>
+            <div class="form-group"><label>Table (Optional)</label><input type="text" id="src_sf_table" placeholder="e.g. raw_employees"></div>
+          </div>
+        `;
+      } else if (type === 'mysql') {
+        container.innerHTML = `
+          <div class="form-row">
+            <div class="form-group"><label>Host *</label><input type="text" id="src_my_host" placeholder="e.g. db.example.com" required></div>
+            <div class="form-group"><label>Port</label><input type="number" id="src_my_port" placeholder="3306" value="3306"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>User *</label><input type="text" id="src_my_user" placeholder="e.g. admin" required></div>
+            <div class="form-group"><label>Password *</label><input type="password" id="src_my_pass" placeholder="••••••••••••" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Database *</label><input type="text" id="src_my_db" placeholder="e.g. raw_db" required></div>
+            <div class="form-group"><label>Schema (Optional)</label><input type="text" id="src_my_schema" placeholder="e.g. public"></div>
+            <div class="form-group"><label>Table (Optional)</label><input type="text" id="src_my_table" placeholder="e.g. raw_table"></div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `<div class="form-group"><label>File Path or URL *</label><input type="text" id="src_path" placeholder="e.g. /path/to/source.csv" required></div>`;
+      }
+    }
+
+    function renderTargetFields() {
+      const type = document.getElementById('targetType').value;
+      const container = document.getElementById('targetFields');
+      if (type === 'snowflake') {
+        container.innerHTML = `
+          <div class="form-row">
+            <div class="form-group"><label>Account *</label><input type="text" id="tgt_sf_account" placeholder="e.g. eg250.us1" required></div>
+            <div class="form-group"><label>User *</label><input type="text" id="tgt_sf_user" placeholder="e.g. db_user" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Password *</label><input type="password" id="tgt_sf_pass" placeholder="••••••••••••" required></div>
+            <div class="form-group"><label>Warehouse *</label><input type="text" id="tgt_sf_wh" placeholder="e.g. COMPUTE_WH" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Database *</label><input type="text" id="tgt_sf_db" placeholder="e.g. ECOMMERCE" required></div>
+            <div class="form-group"><label>Schema *</label><input type="text" id="tgt_sf_schema" placeholder="e.g. FINAL_DATA" required></div>
+            <div class="form-group"><label>Table (Optional)</label><input type="text" id="tgt_sf_table" placeholder="e.g. dim_employees"></div>
+          </div>
+        `;
+      } else if (type === 'mysql') {
+        container.innerHTML = `
+          <div class="form-row">
+            <div class="form-group"><label>Host *</label><input type="text" id="tgt_my_host" placeholder="e.g. db.example.com" required></div>
+            <div class="form-group"><label>Port</label><input type="number" id="tgt_my_port" placeholder="3306" value="3306"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>User *</label><input type="text" id="tgt_my_user" placeholder="e.g. admin" required></div>
+            <div class="form-group"><label>Password *</label><input type="password" id="tgt_my_pass" placeholder="••••••••••••" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Database *</label><input type="text" id="tgt_my_db" placeholder="e.g. analytics_db" required></div>
+            <div class="form-group"><label>Schema (Optional)</label><input type="text" id="tgt_my_schema" placeholder="e.g. staging"></div>
+            <div class="form-group"><label>Table (Optional)</label><input type="text" id="tgt_my_table" placeholder="e.g. target_table"></div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `<div class="form-group"><label>File Path or URL *</label><input type="text" id="tgt_path" placeholder="e.g. /path/to/target.csv" required></div>`;
+      }
+    }
+
+    function buildToolConfig() {
+      const type = document.getElementById('toolType').value;
+      if (type === 'dbt') {
+        return {
+          account_id: document.getElementById('dbt_account_id').value,
+          api_token: document.getElementById('dbt_api_token').value,
+          base_url: document.getElementById('dbt_base_url').value || 'https://eg250.us1.dbt.com'
+        };
+      } else {
+        return { url: document.getElementById('af_url').value };
+      }
+    }
+
+    function buildSourceConfig() {
+      const type = document.getElementById('sourceType').value;
+      if (type === 'snowflake') {
+        return {
+          account: document.getElementById('src_sf_account').value,
+          username: document.getElementById('src_sf_user').value,
+          password: document.getElementById('src_sf_pass').value,
+          warehouse: document.getElementById('src_sf_wh').value,
+          database: document.getElementById('src_sf_db').value,
+          schema: document.getElementById('src_sf_schema').value,
+          table: document.getElementById('src_sf_table').value,
+        };
+      } else if (type === 'mysql') {
+        return {
+          host: document.getElementById('src_my_host').value,
+          port: parseInt(document.getElementById('src_my_port').value || 3306),
+          username: document.getElementById('src_my_user').value,
+          password: document.getElementById('src_my_pass').value,
+          database: document.getElementById('src_my_db').value,
+          schema: document.getElementById('src_my_schema').value,
+          table_name: document.getElementById('src_my_table').value,
+        };
+      } else {
+        return { url_or_path: document.getElementById('src_path').value };
+      }
+    }
+
+    function buildTargetConfig() {
+      const type = document.getElementById('targetType').value;
+      if (type === 'snowflake') {
+        return {
+          account: document.getElementById('tgt_sf_account').value,
+          username: document.getElementById('tgt_sf_user').value,
+          password: document.getElementById('tgt_sf_pass').value,
+          warehouse: document.getElementById('tgt_sf_wh').value,
+          database: document.getElementById('tgt_sf_db').value,
+          schema: document.getElementById('tgt_sf_schema').value,
+          table: document.getElementById('tgt_sf_table').value,
+        };
+      } else if (type === 'mysql') {
+        return {
+          host: document.getElementById('tgt_my_host').value,
+          port: parseInt(document.getElementById('tgt_my_port').value || 3306),
+          username: document.getElementById('tgt_my_user').value,
+          password: document.getElementById('tgt_my_pass').value,
+          database: document.getElementById('tgt_my_db').value,
+          schema: document.getElementById('tgt_my_schema').value,
+          table_name: document.getElementById('tgt_my_table').value,
+        };
+      } else {
+        return { url_or_path: document.getElementById('tgt_path').value };
+      }
+    }
+
+    async function submitPipeline(e) {
       e.preventDefault();
+      const userTenant = document.getElementById('userTenantId').value || 'user123';
+      const tool = document.getElementById('toolType').value;
+      const generatedUrl = `${window.location.origin}/webhooks/${tool}/${userTenant}`;
+
       const payload = {
-        job_id: document.getElementById('connJobId').value.trim(),
-        user_id: document.getElementById('connUserId').value.trim(),
-        pipeline_name: document.getElementById('connPipelineName').value.trim(),
-        tool_type: 'dbt',
-        tool_config: {},
-        source_type: document.getElementById('connSourceType').value,
-        source_config: {
-          account: document.getElementById('connSourceHost').value.trim(),
-          database: document.getElementById('connSourceDb').value.trim(),
-          schema: document.getElementById('connSourceSchema').value.trim(),
-          table: document.getElementById('connSourceTable').value.trim(),
-        },
-        target_type: document.getElementById('connTargetType').value,
-        target_config: {
-          account: document.getElementById('connTargetHost').value.trim(),
-          database: document.getElementById('connTargetDb').value.trim(),
-          schema: document.getElementById('connTargetSchema').value.trim(),
-          table: document.getElementById('connTargetTable').value.trim(),
-        }
+        job_id: document.getElementById('jobId').value,
+        tool_type: tool,
+        tool_config: buildToolConfig(),
+        source_type: document.getElementById('sourceType').value,
+        source_config: buildSourceConfig(),
+        target_type: document.getElementById('targetType').value,
+        target_config: buildTargetConfig(),
+        webhook_url: generatedUrl
       };
 
       try {
@@ -748,19 +977,92 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        const data = await res.json();
+        const banner = document.getElementById('webhookBanner');
+        const codeText = document.getElementById('webhookUrlCode');
+
         if (res.ok) {
-          const data = await res.json();
-          document.getElementById('connectorBanner').style.display = 'block';
-          document.getElementById('connectorWebhookUrl').textContent = data.webhook_url;
-          alert('✓ Pipeline Connector Registered Successfully in AWS RDS MySQL!');
-          fetchVithiData();
+          alert(`✓ Connector saved successfully to AWS RDS MySQL for Job ID: ${payload.job_id}`);
+          codeText.textContent = generatedUrl;
+          banner.style.display = 'block';
+          fetchPipelines();
+        } else {
+          alert(`✕ Registration Failed: ${data.description || data.message || 'Error saving to database'}`);
         }
       } catch (err) {
-        alert('Failed to register connector.');
+        alert(`✕ Network Error: ${err.message}`);
       }
     }
 
-    // Initialize Compact Sleek Chart.js Graphs
+    async function fetchPipelines() {
+      try {
+        const res = await fetch('/api/pipelines');
+        if (res.ok) {
+          const data = await res.json();
+          const tbody = document.getElementById('pipelineTableBody');
+          const container = document.getElementById('pipelinesContainer');
+
+          if (data.pipelines && data.pipelines.length > 0) {
+            const html = data.pipelines.map(p => {
+              const generatedUrl = p.webhook_url || `${window.location.origin}/webhooks/${p.tool_type}/user123`;
+              return `
+                <tr>
+                  <td><strong>${p.job_id}</strong></td>
+                  <td>${p.source_type}</td>
+                  <td>${p.target_type}</td>
+                  <td>
+                    <button class="btn-action" onclick="copyWebhookText('${generatedUrl}')">📋 Copy Webhook</button>
+                    <button class="btn-delete" style="margin-left: 0.3rem;" onclick="deletePipeline('${p.job_id}')">Delete</button>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+            tbody.innerHTML = html;
+            container.innerHTML = `
+              <table>
+                <thead><tr><th>Job ID</th><th>Tool</th><th>Source</th><th>Target</th><th>Webhook URL</th></tr></thead>
+                <tbody>
+                  ${data.pipelines.map(p => `
+                    <tr>
+                      <td><strong>${p.job_id}</strong></td>
+                      <td>${p.tool_type.toUpperCase()}</td>
+                      <td>${p.source_type}</td>
+                      <td>${p.target_type}</td>
+                      <td style="font-family: monospace; font-size: 0.75rem; color: var(--accent-blue);">${p.webhook_url}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+          } else {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active connectors registered in AWS RDS MySQL.</td></tr>`;
+            container.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted);">No pipelines registered yet.</div>';
+          }
+        }
+      } catch (err) {
+        console.log('Error fetching pipelines');
+      }
+    }
+
+    function copyWebhookText(text) {
+      navigator.clipboard.writeText(text);
+      alert('✓ Webhook URL copied to clipboard!');
+    }
+
+    async function deletePipeline(jobId) {
+      if (!confirm(`Delete connector '${jobId}' from AWS RDS MySQL?`)) return;
+      try {
+        const res = await fetch(`/admin/delete-config/${jobId}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert(`✓ Connector '${jobId}' removed from AWS RDS MySQL.`);
+          fetchPipelines();
+        }
+      } catch (err) {
+        alert('Delete failed.');
+      }
+    }
+
+    // Initialize Sleek Compact Chart.js Graphs
     const ctxRuns = document.getElementById('chartRunsOverTime').getContext('2d');
     new Chart(ctxRuns, {
       type: 'line',
@@ -885,40 +1187,12 @@
       }
     }
 
-    async function fetchPipelinesTab() {
-      const container = document.getElementById('pipelinesContainer');
-      try {
-        const res = await fetch('/api/pipelines');
-        if (res.ok) {
-          const data = await res.json();
-          const pipelines = data.pipelines || [];
-          if (pipelines.length === 0) {
-            container.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted);">No pipelines registered yet. Click + Register New Connector to add one.</div>';
-          } else {
-            container.innerHTML = `
-              <table>
-                <thead><tr><th>Job ID</th><th>Tool</th><th>Source</th><th>Target</th><th>Webhook URL</th></tr></thead>
-                <tbody>
-                  ${pipelines.map(p => `
-                    <tr>
-                      <td><strong>${p.job_id}</strong></td>
-                      <td>${p.tool_type.toUpperCase()}</td>
-                      <td>${p.source_type}</td>
-                      <td>${p.target_type}</td>
-                      <td style="font-family: monospace; font-size: 0.75rem; color: var(--accent-blue);">${p.webhook_url}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            `;
-          }
-        }
-      } catch (err) {
-        container.innerHTML = 'Error loading pipelines.';
-      }
-    }
-
+    // Startup initialization
+    renderToolFields();
+    renderSourceFields();
+    renderTargetFields();
     fetchVithiData();
+    fetchPipelines();
   </script>
 </body>
 </html>
