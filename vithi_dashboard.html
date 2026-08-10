@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VITHI — Executive Data Observability Dashboard</title>
+  <title>VITHI — Enterprise Data Observability & Lineage</title>
   
   <!-- Modern Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +37,12 @@
       height: 100vh;
       overflow: hidden;
     }
+
+    /* Custom Dark Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-indigo); }
 
     /* Left Navigation Sidebar */
     .sidebar {
@@ -125,23 +131,7 @@
       border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-size: 0.82rem;
     }
 
-    /* Custom Dark Scrollbar for sleek aesthetic */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-indigo);
-    }
-
-    /* 6 Top Metric Cards Grid */
+    /* KPI Grid */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -162,7 +152,7 @@
     .delta-up { color: var(--accent-emerald); }
     .delta-down { color: var(--accent-rose); }
 
-    /* Compact Chart & Incidents Grid */
+    /* Compact Charts Grid */
     .charts-row {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -182,14 +172,13 @@
     }
     .panel-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
     
-    /* Sleek Fixed Height for Charts */
     .chart-container-compact {
       height: 145px;
       position: relative;
       width: 100%;
     }
 
-    /* Active Incidents Container with Custom Scrollbar */
+    /* Active Incidents Container */
     .incident-scroll-box {
       height: 145px;
       overflow-y: auto;
@@ -213,7 +202,7 @@
     }
     .score-val { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--accent-emerald); margin-top: 0.15rem; }
 
-    /* Middle Layout Grid: Volume, Failure, Freshness, Lineage */
+    /* Middle Layout Grid */
     .row-grid-middle {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -226,18 +215,19 @@
     .bar-fill-emerald { height: 100%; background: var(--accent-emerald); border-radius: 3px; }
     .bar-fill-rose { height: 100%; background: var(--accent-rose); border-radius: 3px; }
 
-    /* Lineage Graph Card */
+    /* Lineage Node Graph Display - Responsive Fix */
     .lineage-card {
       background: rgba(0, 0, 0, 0.25); border: 1px dashed var(--panel-border);
-      border-radius: 10px; padding: 0.75rem; display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.75rem;
+      border-radius: 10px; padding: 0.65rem 0.5rem; display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.75rem; overflow: hidden;
     }
     .node-box {
       background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4);
-      border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.75rem; text-align: center;
+      border-radius: 6px; padding: 0.35rem 0.45rem; font-size: 0.7rem; text-align: center; max-width: 32%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
-    /* Executive Table & Accordion Details */
+    /* Executive Table & Accordions */
     table { width: 100%; border-collapse: collapse; margin-top: 0.35rem; }
     th { text-align: left; padding: 0.65rem 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--panel-border); }
     td { padding: 0.75rem 0.75rem; font-size: 0.8rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; }
@@ -274,7 +264,7 @@
 </head>
 <body>
 
-  <!-- LEFT NAVIGATION SIDEBAR -->
+  <!-- LEFT NAVIGATION SIDEBAR (Infrastructure & Cost Removed) -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-icon">⚡</div>
@@ -294,8 +284,6 @@
       <a class="nav-item" onclick="switchTab('quality', this)"><span class="nav-icon">🎯</span> Data Quality</a>
       <a class="nav-item" onclick="switchTab('logs', this)"><span class="nav-icon">📜</span> Logs</a>
       <a class="nav-item" onclick="switchTab('metrics', this)"><span class="nav-icon">📊</span> Metrics</a>
-      <a class="nav-item" onclick="switchTab('infrastructure', this)"><span class="nav-icon">🏗️</span> Infrastructure</a>
-      <a class="nav-item" onclick="switchTab('cost', this)"><span class="nav-icon">💰</span> Cost</a>
       <a class="nav-item" onclick="switchTab('reports', this)"><span class="nav-icon">📋</span> Reports</a>
       <a class="nav-item" onclick="switchTab('settings', this)"><span class="nav-icon">⚙️</span> Settings</a>
     </nav>
@@ -451,11 +439,11 @@
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Lineage & Impact</div><span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('lineage')">View full</span></div>
           <div class="lineage-card">
-            <div class="node-box">🗄️ MySQL<br/><span style="font-size: 0.65rem; color: var(--text-muted);">customers</span></div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">➔</div>
-            <div class="node-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4);">⚙️ dbt Cloud<br/><span style="font-size: 0.65rem; color: var(--text-muted);">stg_employees</span></div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">➔</div>
-            <div class="node-box" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);">❄️ Snowflake<br/><span style="font-size: 0.65rem; color: var(--text-muted);">dim_customer</span></div>
+            <div class="node-box">🗄️ MySQL<br/><span style="font-size: 0.6rem; color: var(--text-muted);">customers</span></div>
+            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
+            <div class="node-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4);">⚙️ dbt Cloud<br/><span style="font-size: 0.6rem; color: var(--text-muted);">stg_employees</span></div>
+            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
+            <div class="node-box" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);">❄️ Snowflake<br/><span style="font-size: 0.6rem; color: var(--text-muted);">dim_customer</span></div>
           </div>
           <div style="font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem;">Downstream Impact</div>
           <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
@@ -509,20 +497,74 @@
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Freshness SLA</div><div class="score-val">91.3%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Volume Integrity</div><div class="score-val">93.7%</div></div>
         <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Schema Drift</div><div class="score-val">98.6%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
+        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
       </div>
     </section>
 
-    <!-- TAB 4: LINEAGE -->
+    <!-- TAB 4: INTERACTIVE FULL LINEAGE GRAPH (ALL PIPELINES) -->
     <section id="tab-lineage" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Interactive Data Lineage Graph</h1><p class="page-sub">Source System ➔ dbt Transformation ➔ Target Data Warehouse</p></div></div>
-      <div class="panel-card">
-        <div class="lineage-card" style="padding: 2rem;">
-          <div class="node-box" style="padding: 1rem;">🗄️ MySQL Database<br/><strong>raw_db.raw_employees</strong></div>
-          <div style="font-size: 1.5rem; color: var(--accent-indigo);">════►</div>
-          <div class="node-box" style="padding: 1rem; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5);">⚙️ dbt Cloud Job<br/><strong>run_hr_pipeline</strong></div>
-          <div style="font-size: 1.5rem; color: var(--accent-indigo);">════►</div>
-          <div class="node-box" style="padding: 1rem; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5);">❄️ Snowflake Warehouse<br/><strong>ECOMMERCE.FINAL_DATA.stg_employees</strong></div>
+      <div class="top-bar"><div><h1 class="page-title">Interactive Data Lineage Graph</h1><p class="page-sub">Click any pipeline node to inspect database, schema, and column data flow</p></div></div>
+      <div class="panel-card" style="gap: 1.5rem;" id="lineageFullContainer">
+        
+        <!-- Pipeline 1: HR Pipeline -->
+        <div class="detail-container" style="cursor: pointer;" onclick="toggleLineageDetails('lineage-hr')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--accent-indigo);">⚡ Pipeline: run_hr_pipeline</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Click to expand database & schema details</span>
+          </div>
+          <div class="lineage-card" style="padding: 1rem; margin-top: 0.5rem;">
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%;">🗄️ Snowflake / MySQL<br/><strong>HR_ANALYTICS.RAW_DATA.raw_employees</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-indigo);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5);">⚙️ dbt Cloud Job<br/><strong>run_hr_pipeline (stg_employees)</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-indigo);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5);">❄️ Snowflake Warehouse<br/><strong>ECOMMERCE.FINAL_DATA.dim_employees</strong></div>
+          </div>
+          <div id="lineage-hr" style="display: none; font-size: 0.78rem; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+            <div><strong>Source Schema:</strong> database=HR_ANALYTICS, schema=RAW_DATA, object=raw_employees (Columns: ID, FIRST_NAME, LAST_NAME, EMAIL, SALARY)</div>
+            <div style="margin-top: 0.35rem;"><strong>Target Schema:</strong> database=ECOMMERCE, schema=FINAL_DATA, object=dim_employees (Columns: EMPLOYEE_ID, FULL_NAME, WORK_EMAIL)</div>
+          </div>
         </div>
+
+        <!-- Pipeline 2: E-Commerce Pipeline -->
+        <div class="detail-container" style="cursor: pointer;" onclick="toggleLineageDetails('lineage-ecom')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--accent-emerald);">⚡ Pipeline: run_ecommerce_pipeline</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Click to expand database & schema details</span>
+          </div>
+          <div class="lineage-card" style="padding: 1rem; margin-top: 0.5rem;">
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%;">🗄️ AWS RDS MySQL<br/><strong>ecommerce_db.customers</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-emerald);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5);">⚙️ dbt Cloud Job<br/><strong>run_ecommerce_pipeline</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-emerald);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5);">❄️ Snowflake Warehouse<br/><strong>ECOMMERCE.MARTS.dim_customers</strong></div>
+          </div>
+          <div id="lineage-ecom" style="display: none; font-size: 0.78rem; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+            <div><strong>Source Schema:</strong> database=ecommerce_db, schema=public, object=customers (Columns: id, name, email, created_at)</div>
+            <div style="margin-top: 0.35rem;"><strong>Target Schema:</strong> database=ECOMMERCE, schema=MARTS, object=dim_customers (Columns: customer_key, customer_name, email)</div>
+          </div>
+        </div>
+
+        <!-- Pipeline 3: Stock Data Pipeline -->
+        <div class="detail-container" style="cursor: pointer;" onclick="toggleLineageDetails('lineage-stock')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--accent-purple);">⚡ Pipeline: run_stg_stock_data</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Click to expand database & schema details</span>
+          </div>
+          <div class="lineage-card" style="padding: 1rem; margin-top: 0.5rem;">
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%;">🗄️ Snowflake Warehouse<br/><strong>RAW.STOCK_DATA_RAW</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-purple);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5);">⚙️ dbt Cloud Job<br/><strong>run_stg_stock_data</strong></div>
+            <div style="font-size: 1.2rem; color: var(--accent-purple);">════►</div>
+            <div class="node-box" style="padding: 0.75rem; max-width: 30%; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5);">❄️ Snowflake Warehouse<br/><strong>STAGING.STG_STOCK_DATA</strong></div>
+          </div>
+          <div id="lineage-stock" style="display: none; font-size: 0.78rem; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+            <div><strong>Source Schema:</strong> database=RAW, schema=PUBLIC, object=STOCK_DATA_RAW (Columns: SYMBOL, DATE, OPEN, CLOSE, VOLUME)</div>
+            <div style="margin-top: 0.35rem;"><strong>Target Schema:</strong> database=STAGING, schema=PUBLIC, object=STG_STOCK_DATA (Columns: SYMBOL, TRADE_DATE, OPEN_PRICE, CLOSE_PRICE)</div>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -532,17 +574,63 @@
       <div class="panel-card">
         <div class="incident-scroll-box" style="height: auto;" id="incidentsTabFeed">
           <div class="incident-item"><span class="badge-p1">P1</span><div><strong>Model 'stg_employees': invalid identifier 'SALARY'</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Snowflake SQL compilation error on model stg_employees</div></div></div>
+          <div class="incident-item" style="margin-top: 0.5rem;"><span class="badge-p2">P2</span><div><strong>Customer Table Freshness Anomaly</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Table is 47m stale (Threshold: 10m) • 12m ago</div></div></div>
+          <div class="incident-item" style="margin-top: 0.5rem;"><span class="badge-p2">P2</span><div><strong>Sales Volume Anomaly</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Volume dropped by 65% • 18m ago</div></div></div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 6: LOGS -->
+    <!-- TAB 6: ALERTS -->
+    <section id="tab-alerts" class="tab-section">
+      <div class="top-bar"><div><h1 class="page-title">Alert Notifications</h1><p class="page-sub">Configured Webhook & Email Alerts</p></div></div>
+      <div class="panel-card">
+        <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem;">Active Webhook Notifications</div>
+        <div style="font-size: 0.8rem; color: var(--accent-emerald);">✓ dbt Cloud Webhook Receiver Active: /webhooks/dbt/&lt;user_id&gt;</div>
+      </div>
+    </section>
+
+    <!-- TAB 7: DATA QUALITY -->
+    <section id="tab-quality" class="tab-section">
+      <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions & Tests</h1><p class="page-sub">Uniqueness, Non-Null & Schema Consistency Tests</p></div></div>
+      <div class="panel-card">
+        <table>
+          <thead>
+            <tr><th>Dataset</th><th>Test Name</th><th>Type</th><th>Status</th><th>Pass Rate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>stg_employees</strong></td><td>unique_employee_id</td><td>Uniqueness</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>Passed</span></td><td>100%</td></tr>
+            <tr><td><strong>stg_employees</strong></td><td>not_null_email</td><td>Null Check</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>Passed</span></td><td>100%</td></tr>
+            <tr><td><strong>dim_employees</strong></td><td>salary_column_check</td><td>Schema Check</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span></td><td>0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 8: LOGS -->
     <section id="tab-logs" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">Live Execution Logs</h1><p class="page-sub">Console Execution Logs & dbt Cloud Artifacts</p></div></div>
       <div class="panel-card"><div class="log-terminal" id="logsTerminal">Loading execution logs...</div></div>
     </section>
 
-    <!-- TAB 7: SETTINGS -->
+    <!-- TAB 9: METRICS -->
+    <section id="tab-metrics" class="tab-section">
+      <div class="top-bar"><div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, Row Throughput & Failure Trends</p></div></div>
+      <div class="row-grid-middle">
+        <div class="panel-card"><div class="panel-head"><div class="panel-title">Avg Latency (s)</div></div><div class="chart-container-compact"><canvas id="chartMetricsLatency"></canvas></div></div>
+        <div class="panel-card"><div class="panel-head"><div class="panel-title">Row Throughput</div></div><div class="chart-container-compact"><canvas id="chartMetricsTp"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- TAB 10: REPORTS -->
+    <section id="tab-reports" class="tab-section">
+      <div class="top-bar"><div><h1 class="page-title">Daily Data SLA & Quality Reports</h1><p class="page-sub">Automated Executive Summaries</p></div></div>
+      <div class="panel-card">
+        <div style="font-size: 0.85rem; font-weight: 700;">Daily SLA Compliance Report (Aug 10, 2026)</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Overall Pipeline SLA Compliance: <strong>96.2%</strong>. Total rows processed across Snowflake & MySQL: <strong>1.2 Billion</strong>.</div>
+      </div>
+    </section>
+
+    <!-- TAB 11: SETTINGS -->
     <section id="tab-settings" class="tab-section">
       <div class="top-bar"><div><h1 class="page-title">System Settings & Infrastructure</h1><p class="page-sub">AWS RDS MySQL Storage & Webhook Engine Credentials</p></div></div>
       <div class="panel-card">
@@ -569,6 +657,13 @@
     function switchTabById(tabId) {
       const navItem = Array.from(document.querySelectorAll('.nav-item')).find(a => a.textContent.toLowerCase().includes(tabId));
       switchTab(tabId, navItem);
+    }
+
+    function toggleLineageDetails(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+      }
     }
 
     // Initialize Compact Sleek Chart.js Graphs
@@ -601,6 +696,26 @@
       data: {
         labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
         datasets: [{ label: 'Throughput', data: [1.2, 1.8, 1.4, 2.1, 1.6, 2.4], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, pointRadius: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    const ctxMtrLat = document.getElementById('chartMetricsLatency').getContext('2d');
+    new Chart(ctxMtrLat, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [{ label: 'Latency', data: [11, 12, 10, 14, 11, 12], borderColor: '#6366f1', tension: 0.4, borderWidth: 2, pointRadius: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    const ctxMtrTp = document.getElementById('chartMetricsTp').getContext('2d');
+    new Chart(ctxMtrTp, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [{ label: 'Throughput', data: [1.5, 2.2, 1.8, 2.5, 2.0, 2.8], borderColor: '#10b981', tension: 0.4, borderWidth: 2, pointRadius: 0 }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
     });
