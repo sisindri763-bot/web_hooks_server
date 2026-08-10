@@ -125,80 +125,99 @@
       border-radius: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-size: 0.82rem;
     }
 
+    /* Custom Dark Scrollbar for sleek aesthetic */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-indigo);
+    }
+
     /* 6 Top Metric Cards Grid */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.85rem;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.75rem;
     }
     .kpi-card {
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 12px;
-      padding: 0.85rem 1rem;
+      padding: 0.85rem 0.9rem;
       display: flex; flex-direction: column; justify-content: space-between;
+      min-width: 0;
     }
     .kpi-header { display: flex; justify-content: space-between; align-items: center; }
-    .kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-    .kpi-val { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; margin: 0.25rem 0 0.15rem 0; }
-    .kpi-delta { font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem; }
+    .kpi-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .kpi-val { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; margin: 0.25rem 0 0.15rem 0; }
+    .kpi-delta { font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem; }
     .delta-up { color: var(--accent-emerald); }
     .delta-down { color: var(--accent-rose); }
 
     /* Compact Chart & Incidents Grid */
     .charts-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1.2fr;
-      gap: 1rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
     }
     .panel-card {
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 12px;
-      padding: 1rem 1.1rem;
+      padding: 0.9rem 1rem;
       display: flex; flex-direction: column;
+      min-width: 0;
     }
     .panel-head {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
     }
-    .panel-title { font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+    .panel-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
     
     /* Sleek Fixed Height for Charts */
     .chart-container-compact {
-      height: 150px;
+      height: 145px;
       position: relative;
       width: 100%;
     }
 
-    /* Active Incidents Container */
+    /* Active Incidents Container with Custom Scrollbar */
     .incident-scroll-box {
-      height: 150px;
+      height: 145px;
       overflow-y: auto;
-      display: flex; flex-direction: column; gap: 0.5rem;
-      padding-right: 0.25rem;
+      display: flex; flex-direction: column; gap: 0.45rem;
+      padding-right: 0.35rem;
     }
     .incident-item {
       background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 0.6rem 0.75rem; border-radius: 8px; display: flex; gap: 0.6rem; align-items: flex-start;
+      padding: 0.55rem 0.65rem; border-radius: 8px; display: flex; gap: 0.5rem; align-items: flex-start;
+      min-width: 0;
     }
-    .badge-p1 { background: rgba(244, 63, 94, 0.2); color: #fda4af; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; }
-    .badge-p2 { background: rgba(245, 158, 11, 0.2); color: #fde047; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; }
-    .badge-p3 { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; }
+    .badge-p1 { background: rgba(244, 63, 94, 0.2); color: #fda4af; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; flex-shrink: 0; }
+    .badge-p2 { background: rgba(245, 158, 11, 0.2); color: #fde047; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; flex-shrink: 0; }
+    .badge-p3 { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.35rem; border-radius: 4px; flex-shrink: 0; }
 
     /* Observability Scorecards */
-    .score-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
+    .score-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
     .score-card {
       background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border);
       padding: 0.75rem; border-radius: 10px; text-align: center;
     }
-    .score-val { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--accent-emerald); margin-top: 0.15rem; }
+    .score-val { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--accent-emerald); margin-top: 0.15rem; }
 
     /* Middle Layout Grid: Volume, Failure, Freshness, Lineage */
     .row-grid-middle {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1.2fr;
-      gap: 1rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
     }
 
     .bar-row { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.6rem; }
