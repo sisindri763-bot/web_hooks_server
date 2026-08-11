@@ -1323,7 +1323,7 @@
     window.mtrLatChart = new Chart(ctxMtrLat, {
       type: 'line',
       data: {
-        labels: ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
+        labels: ['Aug 11 12:00 PM', 'Aug 11 02:00 PM', 'Aug 11 04:00 PM', 'Aug 11 06:00 PM', 'Aug 11 08:00 PM', 'Aug 11 10:00 PM', 'Aug 12 12:00 AM'],
         datasets: [
           { label: 'run_hr_pipeline', data: [11.3, 11.5, 11.0, 12.0, 11.3, 11.8, 11.3], borderColor: '#6366f1', borderWidth: 2, tension: 0.4, pointRadius: 3 },
           { label: 'run_ecommerce_pipeline', data: [12.0, 12.2, 11.8, 12.5, 12.0, 12.4, 12.0], borderColor: '#a855f7', borderWidth: 2, tension: 0.4, pointRadius: 3 },
@@ -1338,7 +1338,7 @@
     window.mtrTpChart = new Chart(ctxMtrTp, {
       type: 'line',
       data: {
-        labels: ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
+        labels: ['Aug 11 12:00 PM', 'Aug 11 02:00 PM', 'Aug 11 04:00 PM', 'Aug 11 06:00 PM', 'Aug 11 08:00 PM', 'Aug 11 10:00 PM', 'Aug 12 12:00 AM'],
         datasets: [
           { label: 'run_hr_pipeline', data: [58.4, 52.1, 55.0, 58.4, 45.0, 58.4, 52.0], borderColor: '#6366f1', borderWidth: 2, tension: 0.4, pointRadius: 3 },
           { label: 'run_ecommerce_pipeline', data: [2.5, 2.8, 2.2, 2.5, 2.0, 2.5, 2.4], borderColor: '#a855f7', borderWidth: 2, tension: 0.4, pointRadius: 3 },
@@ -1618,7 +1618,7 @@
 
       let latDatasets = [];
       let tpDatasets = [];
-      const labels = ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'];
+      const labels = ['Aug 11 12:00 PM', 'Aug 11 02:00 PM', 'Aug 11 04:00 PM', 'Aug 11 06:00 PM', 'Aug 11 08:00 PM', 'Aug 11 10:00 PM', 'Aug 12 12:00 AM'];
 
       if (selectedPipeline === 'ALL') {
         Object.keys(gTimeseriesData).forEach(pName => {
