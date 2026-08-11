@@ -16,8 +16,7 @@ import logging
 import os
 import sqlite3
 import uuid
-import datetime
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
@@ -480,11 +479,11 @@ def save_pipeline_run(
 
 
 def save_source_asset_metadata(
-    run_id: str,
+    run_id: Optional[str],
     asset_data: Dict[str, Any],
 ) -> str:
     """Save source system snapshot to source_asset_metadata table."""
-    valid_run_uuid = _to_valid_uuid(run_id)
+    valid_run_uuid = _to_valid_uuid(str(run_id or uuid.uuid4()))
     asset_id = str(uuid.uuid4())
 
     last_updated = _to_mysql_datetime(asset_data.get("last_updated_at")) if is_mysql() else asset_data.get("last_updated_at")
@@ -544,11 +543,11 @@ def save_source_asset_metadata(
 
 
 def save_target_asset_metadata(
-    run_id: str,
+    run_id: Optional[str],
     asset_data: Dict[str, Any],
 ) -> str:
     """Save target system snapshot to target_asset_metadata table."""
-    valid_run_uuid = _to_valid_uuid(run_id)
+    valid_run_uuid = _to_valid_uuid(str(run_id or uuid.uuid4()))
     asset_id = str(uuid.uuid4())
 
     last_updated = _to_mysql_datetime(asset_data.get("last_updated_at")) if is_mysql() else asset_data.get("last_updated_at")
@@ -645,9 +644,11 @@ def list_recent_runs(limit: int = 50) -> List[Dict[str, Any]]:
         return [dict(r) for r in rows]
 
 
-def get_run_with_assets(run_id: str) -> Optional[Dict[str, Any]]:
+def get_run_with_assets(run_id: Optional[str]) -> Optional[Dict[str, Any]]:
     """Return full execution record (run + source_asset + target_asset)."""
-    valid_uuid = _to_valid_uuid(run_id)
+    if not run_id:
+        return None
+    valid_uuid = _to_valid_uuid(str(run_id))
 
     if is_mysql():
         conn = _get_mysql_conn()
