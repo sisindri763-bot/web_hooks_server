@@ -753,45 +753,18 @@
       </div>
     </section>
 
-    <!-- TAB 8: DATA QUALITY (Uniqueness, Completeness & Type Consistency Tables) -->
+    <!-- TAB 8: DATA QUALITY ASSERTIONS TABLE -->
     <section id="tab-quality" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions & Tests Engine</h1><p class="page-sub">Uniqueness, Non-Null & Schema Consistency Test Breakdown</p></div></div>
+      <div class="top-bar"><div><h1 class="page-title">Data Quality Assertions Engine</h1><p class="page-sub">Live Dataset Execution & Row Integrity Verification from AWS RDS MySQL</p></div></div>
       
-      <!-- 1. UNIQUENESS & PRIMARY KEY TESTS TABLE -->
       <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">🔑 Uniqueness & Primary Key Tests</div></div>
+        <div class="panel-head"><div class="panel-title">🎯 Data Quality Assertions & Integrity Status</div></div>
         <table>
           <thead>
-            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Total Records</th><th>Duplicate Count</th><th>Uniqueness Pass Rate</th><th>Status</th></tr>
+            <tr><th>Pipeline</th><th>Target Dataset</th><th>Total Records Processed</th><th>Execution Status</th><th>Error / Execution Summary</th></tr>
           </thead>
-          <tbody id="uniquenessTableBody">
-            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>employee_id</td><td>54,200</td><td>0 duplicates</td><td>100.00%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 2. NULL & COMPLETENESS CHECKS TABLE -->
-      <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">🚫 Null & Completeness Checks</div></div>
-        <table>
-          <thead>
-            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Null Record Count</th><th>Completeness %</th><th>Status</th></tr>
-          </thead>
-          <tbody id="completenessTableBody">
-            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>work_email</td><td>0 nulls</td><td>100.00%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 3. SCHEMA & DATA TYPE CONSISTENCY CHECKS TABLE -->
-      <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">📐 Schema & Data Type Consistency Checks</div></div>
-        <table>
-          <thead>
-            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Expected Data Type</th><th>Actual Data Type</th><th>Status</th></tr>
-          </thead>
-          <tbody id="consistencyTableBody">
-            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>SALARY</td><td>DECIMAL(10,2)</td><td>MISSING_COLUMN</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>FAILED: COLUMN_NOT_FOUND</span></td></tr>
+          <tbody id="qualityTableBody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading quality assertions from AWS RDS MySQL...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1317,46 +1290,17 @@
         const res = await fetch('/api/dashboard/quality-details');
         if (res.ok) {
           const data = await res.json();
+          const tbody = document.getElementById('qualityTableBody');
+          const tests = data.quality_tests || [];
 
-          const uniqBody = document.getElementById('uniquenessTableBody');
-          if (uniqBody && data.uniqueness) {
-            uniqBody.innerHTML = data.uniqueness.map(u => `
+          if (tbody && tests.length > 0) {
+            tbody.innerHTML = tests.map(q => `
               <tr>
-                <td><strong style="color: var(--accent-indigo);">${u.pipeline}</strong></td>
-                <td><strong>${u.dataset}</strong></td>
-                <td>${u.target_column}</td>
-                <td>${u.total_records}</td>
-                <td>${u.duplicate_count}</td>
-                <td>${u.pass_rate}</td>
-                <td><span class="status-badge ${u.status === 'PASSED' ? 'status-success' : 'status-failed'}"><span class="dot ${u.status === 'PASSED' ? 'dot-success' : 'dot-failed'}"></span>${u.status}</span></td>
-              </tr>
-            `).join('');
-          }
-
-          const compBody = document.getElementById('completenessTableBody');
-          if (compBody && data.completeness) {
-            compBody.innerHTML = data.completeness.map(c => `
-              <tr>
-                <td><strong style="color: var(--accent-indigo);">${c.pipeline}</strong></td>
-                <td><strong>${c.dataset}</strong></td>
-                <td>${c.target_column}</td>
-                <td>${c.null_count}</td>
-                <td>${c.completeness}</td>
-                <td><span class="status-badge ${c.status === 'PASSED' ? 'status-success' : 'status-warning'}"><span class="dot ${c.status === 'PASSED' ? 'dot-success' : 'dot-warning'}"></span>${c.status}</span></td>
-              </tr>
-            `).join('');
-          }
-
-          const consBody = document.getElementById('consistencyTableBody');
-          if (consBody && data.consistency) {
-            consBody.innerHTML = data.consistency.map(c => `
-              <tr>
-                <td><strong style="color: var(--accent-indigo);">${c.pipeline}</strong></td>
-                <td><strong>${c.dataset}</strong></td>
-                <td>${c.target_column}</td>
-                <td>${c.expected_type}</td>
-                <td>${c.actual_type}</td>
-                <td><span class="status-badge ${c.status === 'PASSED' ? 'status-success' : 'status-failed'}"><span class="dot ${c.status === 'PASSED' ? 'dot-success' : 'dot-failed'}"></span>${c.status}</span></td>
+                <td><strong style="color: var(--accent-indigo);">${q.pipeline}</strong></td>
+                <td><strong>${q.dataset}</strong></td>
+                <td>${q.total_records}</td>
+                <td><span class="status-badge ${q.status === 'PASSED' ? 'status-success' : 'status-failed'}"><span class="dot ${q.status === 'PASSED' ? 'dot-success' : 'dot-failed'}"></span>${q.status}</span></td>
+                <td style="font-size: 0.78rem; color: ${q.status === 'PASSED' ? 'var(--accent-emerald)' : '#f87171'};">${q.error_summary}</td>
               </tr>
             `).join('');
           }
