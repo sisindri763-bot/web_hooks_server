@@ -1003,8 +1003,24 @@ def get_incidents_list() -> List[Dict[str, Any]]:
 def get_metrics_performance_details() -> Dict[str, Any]:
     """Fetch live pipeline latency, throughput, and error metrics from RDS MySQL with time-series history."""
     runs = list_recent_runs(50)
+    registered_cfgs = get_all_configurations()
+    
     pipeline_groups = {}
     timeseries_data = {}
+    
+    # Pre-populate registered pipelines from configurations table
+    for cfg in registered_cfgs:
+        p_name = cfg.get("pipeline_id") or cfg.get("job_id") or "pipeline"
+        job_id = str(cfg.get("job_id") or "1001")
+        if p_name not in pipeline_groups:
+            pipeline_groups[p_name] = {
+                "job_id": job_id,
+                "durations": [],
+                "rows_list": [],
+                "successes": 0,
+                "total_runs": 0,
+                "history": []
+            }
     
     total_all_rows = 0
     total_all_runs = 0
@@ -1062,7 +1078,7 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     
     for p_name, g in pipeline_groups.items():
         durs = g["durations"]
-        avg_dur = round(sum(durs) / len(durs), 1) if durs else 12.0
+        avg_dur = round(sum(durs) / len(durs), 1) if durs else 0.0
         sorted_durs = sorted(durs)
         p95_index = min(int(len(sorted_durs) * 0.95), len(sorted_durs) - 1)
         p95_dur = sorted_durs[p95_index] if sorted_durs else avg_dur
@@ -1082,7 +1098,7 @@ def get_metrics_performance_details() -> Dict[str, Any]:
         })
         timeseries_data[p_name] = g["history"]
         
-    overall_avg_dur = round(sum(all_durations) / len(all_durations), 1) if all_durations else 12.0
+    overall_avg_dur = round(sum(all_durations) / len(all_durations), 1) if all_durations else 0.0
     overall_sla = round((total_all_successes / total_all_runs) * 100, 1) if total_all_runs > 0 else 100.0
     
     return {

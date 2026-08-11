@@ -1582,18 +1582,22 @@
 
           // 3. Populate Table
           const tbody = document.getElementById('metricsPerformanceTableBody');
-          if (tbody && metrics.length > 0) {
-            tbody.innerHTML = metrics.map(m => `
-              <tr style="cursor: pointer;" onclick="selectPipelineForChart('${m.pipeline_name}')">
-                <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
-                <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
-                <td>${m.avg_duration}</td>
-                <td>${m.p95_duration}</td>
-                <td>${m.total_rows}</td>
-                <td><span style="color: var(--accent-emerald); font-weight: 600;">${m.throughput_rate}</span></td>
-                <td><span class="status-badge status-success"><span class="dot dot-success"></span>${m.success_rate}</span></td>
-              </tr>
-            `).join('');
+          if (tbody) {
+            if (metrics.length > 0) {
+              tbody.innerHTML = metrics.map(m => `
+                <tr style="cursor: pointer;" onclick="selectPipelineForChart('${m.pipeline_name}')">
+                  <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
+                  <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
+                  <td>${m.avg_duration}</td>
+                  <td>${m.p95_duration}</td>
+                  <td>${m.total_rows}</td>
+                  <td><span style="color: var(--accent-emerald); font-weight: 600;">${m.throughput_rate}</span></td>
+                  <td><span class="status-badge status-success"><span class="dot dot-success"></span>${m.success_rate}</span></td>
+                </tr>
+              `).join('');
+            } else {
+              tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active pipeline metrics recorded in AWS RDS MySQL yet. Stream webhooks or trigger connectors to populate telemetry.</td></tr>`;
+            }
           }
 
           // Initial dynamic chart filter call
