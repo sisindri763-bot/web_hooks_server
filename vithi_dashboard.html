@@ -392,15 +392,15 @@
           <div id="kpiIncidents" class="kpi-val">5</div>
           <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
         </div>
-        <div class="kpi-card" onclick="openMetricModal('volume')">
+        <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Total Volume</span><span>🛡️</span></div>
           <div id="kpiTotalVolume" class="kpi-val">1,000 rows</div>
-          <div class="kpi-delta delta-up">🔍 Click for Volume Breakdown</div>
+          <div class="kpi-delta delta-up">➔ Drill down to Volume Telemetry</div>
         </div>
-        <div class="kpi-card" onclick="openMetricModal('freshness')">
+        <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Data Freshness</span><span>🟢</span></div>
           <div id="kpiFreshness" class="kpi-val">100%</div>
-          <div class="kpi-delta delta-up">🔍 Click for Freshness Details</div>
+          <div class="kpi-delta delta-up">➔ Drill down to Freshness SLA</div>
         </div>
       </div>
 
