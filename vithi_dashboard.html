@@ -1218,9 +1218,14 @@
       type: 'line',
       data: {
         labels: ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
-        datasets: [{ label: 'All Pipelines Avg Latency (s)', data: [11.9, 12.0, 11.5, 12.4, 11.9, 12.2, 11.9], borderColor: '#6366f1', tension: 0.4, borderWidth: 2, pointRadius: 3 }]
+        datasets: [
+          { label: 'run_hr_pipeline', data: [11.3, 11.5, 11.0, 12.0, 11.3, 11.8, 11.3], borderColor: '#6366f1', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'run_ecommerce_pipeline', data: [12.0, 12.2, 11.8, 12.5, 12.0, 12.4, 12.0], borderColor: '#a855f7', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'run_stg_stock_data', data: [10.5, 10.8, 10.2, 11.0, 10.5, 10.7, 10.5], borderColor: '#10b981', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'dbt_job_run', data: [14.0, 14.2, 13.8, 14.5, 14.0, 14.3, 14.0], borderColor: '#38bdf8', borderWidth: 2, tension: 0.4, pointRadius: 3 }
+        ]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
     });
 
     const ctxMtrTp = document.getElementById('chartMetricsTp').getContext('2d');
@@ -1228,9 +1233,14 @@
       type: 'line',
       data: {
         labels: ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00'],
-        datasets: [{ label: 'All Pipelines Max Throughput (rows/s)', data: [58.4, 42.1, 55.0, 58.4, 30.0, 58.4, 52.0], borderColor: '#10b981', tension: 0.4, borderWidth: 2, pointRadius: 3 }]
+        datasets: [
+          { label: 'run_hr_pipeline', data: [58.4, 52.1, 55.0, 58.4, 45.0, 58.4, 52.0], borderColor: '#6366f1', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'run_ecommerce_pipeline', data: [2.5, 2.8, 2.2, 2.5, 2.0, 2.5, 2.4], borderColor: '#a855f7', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'run_stg_stock_data', data: [28.6, 25.0, 28.6, 26.2, 24.0, 28.6, 27.0], borderColor: '#10b981', borderWidth: 2, tension: 0.4, pointRadius: 3 },
+          { label: 'dbt_job_run', data: [0.7, 0.8, 0.6, 0.7, 0.5, 0.7, 0.7], borderColor: '#38bdf8', borderWidth: 2, tension: 0.4, pointRadius: 3 }
+        ]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
     });
 
     function toggleRunDetails(runId) {
