@@ -992,7 +992,15 @@
         </div>
       </div>
 
-      <!-- 3. PIPELINE METRICS PERFORMANCE BREAKDOWN TABLE -->
+      <!-- 4. SUCCESS RATE BY PIPELINE BREAKDOWN (Matching diagram Card 2) -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">📈 Success Rate by Pipeline</div></div>
+        <div id="successRateByPipelineBars">
+          <!-- Dynamically populated via JS from AWS RDS MySQL -->
+        </div>
+      </div>
+
+      <!-- 5. PIPELINE METRICS PERFORMANCE BREAKDOWN TABLE -->
       <div class="panel-card">
         <div class="panel-head"><div class="panel-title">📊 Pipeline Latency, Throughput & SLA Metrics Breakdown</div></div>
         <table>
@@ -1749,19 +1757,44 @@
 
           // 3. Populate Table
           const tbody = document.getElementById('metricsPerformanceTableBody');
+          const barContainer = document.getElementById('successRateByPipelineBars');
+
           if (tbody) {
             if (metrics.length > 0) {
-              tbody.innerHTML = metrics.map(m => `
-                <tr style="cursor: pointer;" onclick="selectPipelineForChart('${m.pipeline_name}')">
-                  <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
-                  <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
-                  <td>${m.avg_duration}</td>
-                  <td>${m.p95_duration}</td>
-                  <td>${m.total_rows}</td>
-                  <td><span style="color: var(--accent-emerald); font-weight: 600;">${m.throughput_rate}</span></td>
-                  <td><span class="status-badge status-success"><span class="dot dot-success"></span>${m.success_rate}</span></td>
-                </tr>
-              `).join('');
+              tbody.innerHTML = metrics.map(m => {
+                const sNum = parseFloat(m.success_rate) || 0;
+                const bClass = sNum >= 90 ? 'status-success' : (sNum >= 70 ? 'status-warning' : 'status-failed');
+                const dClass = sNum >= 90 ? 'dot-success' : (sNum >= 70 ? 'dot-warning' : 'dot-failed');
+                return `
+                  <tr style="cursor: pointer;" onclick="selectPipelineForChart('${m.pipeline_name}')">
+                    <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
+                    <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
+                    <td>${m.avg_duration}</td>
+                    <td>${m.p95_duration}</td>
+                    <td>${m.total_rows}</td>
+                    <td><span style="color: var(--accent-emerald); font-weight: 600;">${m.throughput_rate}</span></td>
+                    <td><span class="status-badge ${bClass}"><span class="dot ${dClass}"></span>${m.success_rate}</span></td>
+                  </tr>
+                `;
+              }).join('');
+
+              if (barContainer) {
+                barContainer.innerHTML = metrics.map(m => {
+                  const sVal = parseFloat(m.success_rate) || 0;
+                  const barColor = sVal >= 90 ? '#10b981' : (sVal >= 70 ? '#f59e0b' : '#f43f5e');
+                  return `
+                    <div class="bar-row" style="margin-bottom: 0.65rem;">
+                      <div class="bar-label" style="font-size: 0.8rem; margin-bottom: 0.25rem;">
+                        <span><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></span>
+                        <span style="color: ${barColor}; font-weight: 800;">${m.success_rate}</span>
+                      </div>
+                      <div class="bar-track" style="height: 7px;">
+                        <div style="width: ${sVal}%; height: 100%; background: ${barColor}; border-radius: 4px; transition: width 0.4s;"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('');
+              }
             } else {
               tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active pipeline metrics recorded in AWS RDS MySQL yet. Stream webhooks or trigger connectors to populate telemetry.</td></tr>`;
             }
