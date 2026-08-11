@@ -1363,6 +1363,53 @@
       }
     }
 
+    async function fetchIncidents() {
+      try {
+        const res = await fetch('/api/dashboard/incidents');
+        if (res.ok) {
+          const data = await res.json();
+          const incidents = data.incidents || [];
+          const tabFeed = document.getElementById('incidentsTabFeed');
+
+          if (tabFeed && incidents.length > 0) {
+            tabFeed.innerHTML = incidents.map(inc => `
+              <div class="detail-container" style="cursor: pointer; margin-bottom: 0.75rem;" onclick="toggleIncDetail('${inc.id}')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.65rem;">
+                    <span class="${inc.severity === 'P1' ? 'badge-p1' : 'badge-p2'}">${inc.severity}</span>
+                    <div>
+                      <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">${inc.title}</div>
+                      <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">
+                        Pipeline: <strong style="color: var(--accent-indigo);">${inc.pipeline_name}</strong> • Job ID: <span style="font-family: monospace; color: var(--accent-blue);">${inc.job_id}</span> • ${inc.time}
+                      </div>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--accent-indigo);">▼ Click for details</span>
+                </div>
+                
+                <div id="inc-detail-${inc.id}" style="display: none; margin-top: 0.75rem; border-top: 1px solid var(--panel-border); padding-top: 0.75rem;">
+                  <div class="error-box" style="margin-bottom: 0.5rem;">
+                    <strong>🚨 Root Cause Summary:</strong> ${inc.summary}
+                  </div>
+                  <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem;">Console Log & Stack Trace:</div>
+                  <div class="log-terminal" style="max-height: 120px;">${inc.log}</div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.log('Error fetching incidents');
+      }
+    }
+
+    function toggleIncDetail(id) {
+      const el = document.getElementById(`inc-detail-${id}`);
+      if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
     // Startup initialization
     renderToolFields();
     renderSourceFields();
@@ -1371,6 +1418,7 @@
     fetchPipelines();
     fetchObservabilityDetails();
     fetchQualityDetails();
+    fetchIncidents();
   </script>
 </body>
 </html>
