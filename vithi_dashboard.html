@@ -510,10 +510,50 @@
         </div>
       </div>
 
+    <!-- TAB 3: PIPELINES (Drill Down matching diagram Card 1) -->
+    <section id="tab-pipelines" class="tab-section">
+      <div class="top-bar">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; margin-bottom: 0.2rem;">Overview ➔ Pipelines</div>
+          <h1 class="page-title">⚡ Pipelines - Drill Down</h1>
+          <p class="page-sub">Comprehensive status, execution metrics, and logs for all data pipelines</p>
+        </div>
+      </div>
+
+      <!-- 4 TOP STAT CARDS MATCHING DIAGRAM CARD 1 -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Total Pipelines</span><span>⚡</span></div>
+          <div id="drillTotalPipelines" class="kpi-val">247</div>
+          <div class="kpi-delta delta-up">▲ 12 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Active</span><span>🟢</span></div>
+          <div id="drillActivePipelines" class="kpi-val">32</div>
+          <div class="kpi-delta delta-up">▲ 4 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Paused</span><span>⏸️</span></div>
+          <div class="kpi-val">12</div>
+          <div class="kpi-delta delta-down">▼ 1 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Disabled</span><span>🚫</span></div>
+          <div class="kpi-val">3</div>
+          <div class="kpi-delta delta-down">0 vs yesterday</div>
+        </div>
+      </div>
+
+      <!-- SEARCH & FILTER BAR -->
+      <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem;">
+        <input type="text" id="pipelineSearchInput" placeholder="🔍 Search pipelines..." onkeyup="filterPipelinesTable()" style="max-width: 320px;" />
+        <button class="btn-ctrl">⚡ Filters</button>
+      </div>
+
       <!-- RECENT PIPELINE RUNS EXPANDABLE TABLE -->
       <div class="panel-card">
         <div class="panel-head">
-          <div class="panel-title">Pipeline Runs (Recent)</div>
+          <div class="panel-title">Pipeline Execution Table</div>
           <span style="font-size: 0.75rem; color: var(--text-muted);">Click any row to open/close full run logs & details</span>
         </div>
         <table>
@@ -655,23 +695,43 @@
       <div class="panel-card" id="pipelinesContainer">Loading pipeline configurations...</div>
     </section>
 
-    <!-- TAB 4: OBSERVABILITY (Freshness SLA, Volume Engine & Schema Drift Tables) -->
+    <!-- TAB 4: DATA OBSERVABILITY & FRESHNESS DRILL DOWN (Matching diagram Card 5) -->
     <section id="tab-observability" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Data Observability Analytics Engine</h1><p class="page-sub">Freshness SLA Monitoring, Volume Anomaly Detection & Schema Drift Tracker</p></div></div>
+      <div class="top-bar">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700; margin-bottom: 0.2rem;">Overview ➔ Data Freshness & Observability</div>
+          <h1 class="page-title">🟢 Data Freshness - Drill Down</h1>
+          <p class="page-sub">Data freshness SLA tracking, dataset update timestamps, and volume anomaly engine</p>
+        </div>
+      </div>
       
-      <!-- Observability Scorecards -->
-      <div class="score-grid">
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Freshness SLA</div><div class="score-val" id="obsScoreFreshness">91.3%</div></div>
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Volume Integrity</div><div class="score-val">93.7%</div></div>
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Schema Drift</div><div class="score-val">98.6%</div></div>
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
-        <div class="score-card"><div style="font-size: 0.75rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
+      <!-- 4 TOP STAT CARDS MATCHING DIAGRAM CARD 5 -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Overall Freshness</span><span>🟢</span></div>
+          <div class="kpi-val" style="color: var(--accent-emerald);" id="obsScoreFreshness">91.3%</div>
+          <div class="kpi-delta delta-up">▲ 1.8% vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Fresh Datasets</span><span>✅</span></div>
+          <div class="kpi-val" style="color: var(--accent-emerald);">1,228</div>
+          <div class="kpi-delta delta-up">▲ 24 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Stale Datasets</span><span>⚠️</span></div>
+          <div class="kpi-val" style="color: #fde047;">114</div>
+          <div class="kpi-delta delta-down">▼ 5 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Critical Datasets</span><span>🚨</span></div>
+          <div class="kpi-val" style="color: var(--accent-rose);">28</div>
+          <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
+        </div>
       </div>
 
       <!-- 1. FRESHNESS SLA MONITORING TABLE -->
       <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">🕒 Data Freshness SLA Tracker</div></div>
+        <div class="panel-head"><div class="panel-title">🕒 Top Datasets by Freshness SLA</div></div>
         <table>
           <thead>
             <tr><th>Dataset</th><th>Database & Schema</th><th>Last Updated At</th><th>SLA Target</th><th>Age (Hours)</th><th>Freshness Status</th></tr>
@@ -755,15 +815,99 @@
       </div>
     </section>
 
-    <!-- TAB 6: INCIDENTS -->
+    <!-- TAB 6: INCIDENTS & FAILED PIPELINES DRILL DOWN (Matching diagram Cards 3 & 4) -->
     <section id="tab-incidents" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Incidents & Anomaly Feed</h1><p class="page-sub">Live Alert Incidents & Root Cause Error Logs</p></div></div>
-      <div class="panel-card">
-        <div class="incident-scroll-box" style="height: auto;" id="incidentsTabFeed">
-          <div class="incident-item"><span class="badge-p1">P1</span><div><strong>Model 'stg_employees': invalid identifier 'SALARY'</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Snowflake SQL compilation error on model stg_employees</div></div></div>
-          <div class="incident-item" style="margin-top: 0.5rem;"><span class="badge-p2">P2</span><div><strong>Customer Table Freshness Anomaly</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Table is 47m stale (Threshold: 10m) • 12m ago</div></div></div>
-          <div class="incident-item" style="margin-top: 0.5rem;"><span class="badge-p2">P2</span><div><strong>Sales Volume Anomaly</strong><div style="font-size: 0.75rem; color: var(--text-muted);">Volume dropped by 65% • 18m ago</div></div></div>
+      <div class="top-bar">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--accent-rose); font-weight: 700; margin-bottom: 0.2rem;">Overview ➔ Incidents & Failed Pipelines</div>
+          <h1 class="page-title">🚨 Incidents & Failed Pipelines - Drill Down</h1>
+          <p class="page-sub">Live alert incidents, root cause error tracebacks, and severity categorization</p>
         </div>
+      </div>
+
+      <!-- 4 TOP STAT CARDS MATCHING DIAGRAM CARDS 3 & 4 -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Open Incidents</span><span>🚨</span></div>
+          <div class="kpi-val" style="color: var(--accent-rose);">5</div>
+          <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">In Progress</span><span>⏳</span></div>
+          <div class="kpi-val" style="color: #fde047;">2</div>
+          <div class="kpi-delta delta-up">▲ 1 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">Resolved (24h)</span><span>✅</span></div>
+          <div class="kpi-val" style="color: var(--accent-emerald);">8</div>
+          <div class="kpi-delta delta-up">▲ 3 vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-label">SLA Breached</span><span>⚠️</span></div>
+          <div class="kpi-val" style="color: var(--accent-purple);">2</div>
+          <div class="kpi-delta delta-down">0 vs yesterday</div>
+        </div>
+      </div>
+
+      <!-- FILTER CONTROLS -->
+      <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem;">
+        <select class="control-select" style="max-width: 180px;"><option>All Severities (P1, P2, P3)</option><option>P1 - Critical</option><option>P2 - High</option><option>P3 - Medium</option></select>
+        <select class="control-select" style="max-width: 180px;"><option>All Status (Open, In Progress, Resolved)</option><option>Open</option><option>In Progress</option><option>Resolved</option></select>
+      </div>
+
+      <!-- FAILED PIPELINES & INCIDENTS TABLE MATCHING DIAGRAM -->
+      <div class="panel-card">
+        <div class="panel-head">
+          <div class="panel-title">Failed Pipelines & Active Incidents Feed</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Pipeline / Incident</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Detected Time</th>
+              <th>Error Details / Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Orders_Load Pipeline Failed</strong></td>
+              <td><span class="badge-p1">P1</span></td>
+              <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Open</span></td>
+              <td>5m ago</td>
+              <td><span style="color: #fda4af; font-family: monospace; font-size: 0.78rem;">Snowflake connection timeout on load stage</span></td>
+            </tr>
+            <tr>
+              <td><strong>run_hr_pipeline Error</strong></td>
+              <td><span class="badge-p1">P1</span></td>
+              <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Open</span></td>
+              <td>12m ago</td>
+              <td><span style="color: #fda4af; font-family: monospace; font-size: 0.78rem;">Model 'stg_employees': invalid identifier 'SALARY'</span></td>
+            </tr>
+            <tr>
+              <td><strong>Customer Freshness Anomaly</strong></td>
+              <td><span class="badge-p2">P2</span></td>
+              <td><span class="status-badge status-warning"><span class="dot dot-warning"></span>In Progress</span></td>
+              <td>18m ago</td>
+              <td>Table is 47m stale (Threshold: 10m)</td>
+            </tr>
+            <tr>
+              <td><strong>Sales Volume Anomaly</strong></td>
+              <td><span class="badge-p2">P2</span></td>
+              <td><span class="status-badge status-warning"><span class="dot dot-warning"></span>In Progress</span></td>
+              <td>1h ago</td>
+              <td>Volume dropped by 65% on sales stream</td>
+            </tr>
+            <tr>
+              <td><strong>Schema Change Detected</strong></td>
+              <td><span class="badge-p3">P3</span></td>
+              <td><span class="status-badge status-success"><span class="dot dot-success"></span>Resolved</span></td>
+              <td>2h ago</td>
+              <td>New column 'discount_code' added to orders</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
