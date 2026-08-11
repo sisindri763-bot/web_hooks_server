@@ -713,75 +713,100 @@ def get_executive_summary() -> Dict[str, Any]:
     runs = list_recent_runs(200)
     total_runs = len(runs)
     
-    success_runs = [r for r in runs if str(r.get("status")).lower() == "success"]
-    failed_runs  = [r for r in runs if str(r.get("status")).lower() in ["failed", "error"]]
+    if total_runs == 0:
+        return {
+            "pipelines_count": 0,
+            "pipelines_delta": "0 active pipelines",
+            "success_rate": "100%",
+            "success_rate_delta": "0 runs",
+            "failed_pipelines": 0,
+            "failed_delta": "0 failed",
+            "incidents_count": 0,
+            "incidents_delta": "0 incidents",
+            "total_volume": "0 rows",
+            "total_volume_delta": "0 rows processed",
+            "data_freshness": "100%",
+            "freshness_delta": "Up-to-Date",
+            "observability_scores": {
+                "freshness": 100.0,
+                "volume": 100.0,
+                "schema": 100.0,
+                "data_quality": 100.0,
+                "consistency": 100.0,
+                "uniqueness": 100.0,
+            }
+        }
+        
+    pipeline_names = set()
+    failed_count = 0
+    success_count = 0
+    total_vol_sum = 0
+    most_recent_time = None
     
-    success_count = len(success_runs)
-    failed_count  = len(failed_runs)
+    for r in runs:
+        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "Pipeline"
+        pipeline_names.add(p_name)
+        status_raw = str(r.get("status") or "success").lower()
+        if status_raw == "success":
+            success_count += 1
+        else:
+            failed_count += 1
+            
+        rows = int(r.get("rows_written") or r.get("rows_read") or 0)
+        total_vol_sum += rows
+        
+        t = r.get("saved_at") or r.get("start_time")
+        if t:
+            if isinstance(t, datetime):
+                dt_t = t
+            else:
+                try:
+                    dt_t = datetime.strptime(str(t).split(".")[0], "%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    dt_t = None
+            if dt_t and (most_recent_time is None or dt_t > most_recent_time):
+                most_recent_time = dt_t
+                
+    success_rate = round((success_count / total_runs) * 100, 1)
     
-    success_rate = round((success_count / total_runs * 100), 1) if total_runs > 0 else 100.0
-    
-    # Calculate unique pipeline IDs
-    unique_pipelines = len(set([str(r.get("pipeline_id")) for r in runs if r.get("pipeline_id")]))
-    if unique_pipelines == 0:
-        unique_pipelines = 1
-
-    # Unique datasets count from MySQL
-    datasets_count = 0
-    if is_mysql():
-        try:
-            conn = _get_mysql_conn()
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT COUNT(DISTINCT object_name) AS cnt FROM (
-                        SELECT object_name FROM source_asset_metadata WHERE object_name IS NOT NULL
-                        UNION
-                        SELECT object_name FROM target_asset_metadata WHERE object_name IS NOT NULL
-                    ) AS combined
-                """)
-                res = cur.fetchone()
-                datasets_count = res.get("cnt", 0) if isinstance(res, dict) else 0
-            conn.close()
-        except Exception:
-            datasets_count = 5
+    # Calculate Data Freshness score based on time elapsed since last run
+    if most_recent_time:
+        minutes_since = abs((datetime.now() - most_recent_time).total_seconds()) / 60.0
+        if minutes_since < 60:
+            freshness_score = 100.0
+            freshness_str = f"100% ({int(minutes_since)}m ago)"
+        elif minutes_since < 360:
+            freshness_score = round(max(50.0, 100.0 - (minutes_since / 6)), 1)
+            freshness_str = f"{freshness_score}% ({int(minutes_since / 60)}h ago)"
+        else:
+            freshness_score = round(max(10.0, 100.0 - (minutes_since / 24)), 1)
+            freshness_str = f"{freshness_score}% (>6h ago)"
     else:
-        datasets_count = 5
+        freshness_score = 95.0
+        freshness_str = "95.0% (Fresh)"
 
-    # Incidents count (failed runs + zero row warnings)
-    incidents_count = failed_count
-
-    # Observability Scores
-    freshness_score = 91.3 if success_rate > 90 else round(success_rate * 0.95, 1)
-    volume_score    = 93.7 if success_rate > 90 else round(success_rate * 0.96, 1)
-    schema_score    = 98.6
-    quality_score   = 88.9 if failed_count == 0 else round(88.9 - (failed_count * 2), 1)
-    consistency     = 94.2
-    uniqueness      = 97.1
-
-    # Total Volume processed across all runs
-    total_vol_sum = sum([r.get("rows_written") or r.get("rows_read") or 0 for r in runs])
-    total_vol_str = f"{total_vol_sum:,} rows" if total_vol_sum > 0 else "1,000 rows"
-
+    total_vol_str = f"{total_vol_sum:,} rows"
+    
     return {
-        "pipelines_count": unique_pipelines,
-        "pipelines_delta": "+1 vs yesterday",
+        "pipelines_count": len(pipeline_names),
+        "pipelines_delta": f"{len(pipeline_names)} active pipelines",
         "success_rate": f"{success_rate}%",
-        "success_rate_delta": "+2.1% vs yesterday",
+        "success_rate_delta": f"{success_count}/{total_runs} succeeded",
         "failed_pipelines": failed_count,
-        "failed_delta": f"{failed_count} vs yesterday",
-        "incidents_count": incidents_count,
-        "incidents_delta": "-1 vs yesterday",
+        "failed_delta": f"{failed_count} failed runs",
+        "incidents_count": failed_count,
+        "incidents_delta": f"{failed_count} active alerts",
         "total_volume": total_vol_str,
         "total_volume_delta": "▲ live RDS sum",
-        "data_freshness": f"{freshness_score}%",
-        "freshness_delta": "+1.8% vs yesterday",
+        "data_freshness": freshness_str,
+        "freshness_delta": "▲ live check",
         "observability_scores": {
             "freshness": freshness_score,
-            "volume": volume_score,
-            "schema": schema_score,
-            "data_quality": quality_score,
-            "consistency": consistency,
-            "uniqueness": uniqueness,
+            "volume": 100.0 if total_vol_sum > 0 else 0.0,
+            "schema": 100.0,
+            "data_quality": success_rate,
+            "consistency": 95.0,
+            "uniqueness": 100.0,
         }
     }
 
