@@ -1032,6 +1032,15 @@ def get_incidents_list() -> List[Dict[str, Any]]:
     return incidents
 
 
+def get_all_configurations() -> List[Dict[str, Any]]:
+    """Return all registered pipeline configurations from RDS MySQL."""
+    try:
+        from config.db import list_pipelines
+        return list_pipelines()
+    except Exception:
+        return []
+
+
 def get_metrics_performance_details() -> Dict[str, Any]:
     """Fetch live pipeline latency, throughput, and error metrics from RDS MySQL with time-series history."""
     runs = list_recent_runs(50)
