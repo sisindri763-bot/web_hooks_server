@@ -44,7 +44,7 @@ from config.db import init_db, register_pipeline, get_pipeline, find_pipeline, l
 from config.results_db import (
     init_results_db, save_pipeline_run, save_source_asset_metadata, save_target_asset_metadata,
     list_recent_runs, get_run_with_assets, get_executive_summary, get_dashboard_recent_table,
-    get_observability_details, get_quality_details, get_incidents_list,
+    get_observability_details, get_quality_details, get_incidents_list, get_metrics_performance_details,
 )
 from adapters  import LOG_ADAPTERS, SOURCE_ADAPTERS, TARGET_ADAPTERS
 
@@ -488,6 +488,12 @@ def api_dashboard_quality_details():
 def api_dashboard_incidents():
     incidents = get_incidents_list()
     return jsonify({"incidents": incidents}), 200
+
+
+@app.route("/api/dashboard/metrics-details", methods=["GET"])
+def api_dashboard_metrics_details():
+    metrics = get_metrics_performance_details()
+    return jsonify({"metrics": metrics}), 200
 
 
 @app.route("/api/pipelines", methods=["GET"])

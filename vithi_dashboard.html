@@ -776,12 +776,68 @@
       <div class="panel-card"><div class="log-terminal" id="logsTerminal">Loading execution logs...</div></div>
     </section>
 
-    <!-- TAB 10: METRICS -->
+    <!-- TAB 10: METRICS (Full-Width Enterprise Observability Performance Dashboard) -->
     <section id="tab-metrics" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, Row Throughput & Failure Trends</p></div></div>
-      <div class="row-grid-middle">
-        <div class="panel-card"><div class="panel-head"><div class="panel-title">Avg Latency (s)</div></div><div class="chart-container-compact"><canvas id="chartMetricsLatency"></canvas></div></div>
-        <div class="panel-card"><div class="panel-head"><div class="panel-title">Row Throughput</div></div><div class="chart-container-compact"><canvas id="chartMetricsTp"></canvas></div></div>
+      <div class="top-bar"><div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, P95 Duration, Row Throughput & Pipeline SLA Analytics</p></div></div>
+      
+      <!-- 1. TOP KPI SUMMARY CARDS -->
+      <div class="row-grid-middle" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+        <div class="kpi-card" style="cursor: default;">
+          <div class="kpi-label">Avg Execution Latency</div>
+          <div class="kpi-val" style="color: var(--accent-indigo);">14.2s</div>
+          <div class="kpi-delta delta-up">P95 SLA Target: 25.0s</div>
+        </div>
+        <div class="kpi-card" style="cursor: default;">
+          <div class="kpi-label">Max Ingestion Throughput</div>
+          <div class="kpi-val" style="color: var(--accent-emerald);">2,450 <span style="font-size: 0.8rem; font-weight: 500;">rows/s</span></div>
+          <div class="kpi-delta delta-up">⚡ High Speed Extractor</div>
+        </div>
+        <div class="kpi-card" style="cursor: default;">
+          <div class="kpi-label">Overall SLA Compliance</div>
+          <div class="kpi-val" style="color: var(--accent-purple);">96.2%</div>
+          <div class="kpi-delta delta-up">🟢 24/25 Jobs In SLA</div>
+        </div>
+        <div class="kpi-card" style="cursor: default;">
+          <div class="kpi-label">Total Volume Processed</div>
+          <div class="kpi-val" style="color: var(--accent-blue);">1.2B <span style="font-size: 0.8rem; font-weight: 500;">rows</span></div>
+          <div class="kpi-delta delta-up">Across MySQL & Snowflake</div>
+        </div>
+      </div>
+
+      <!-- 2. FULL-WIDTH GRAPH PANELS -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">📈 Pipeline Execution Latency & P95 Trends (Seconds over Time)</div></div>
+        <div style="height: 250px; position: relative; width: 100%;">
+          <canvas id="chartMetricsLatency"></canvas>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">⚡ Ingestion Throughput Rate (Rows / Second)</div></div>
+        <div style="height: 200px; position: relative; width: 100%;">
+          <canvas id="chartMetricsTp"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. PIPELINE METRICS PERFORMANCE BREAKDOWN TABLE -->
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">📊 Pipeline Latency, Throughput & SLA Metrics Breakdown</div></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Pipeline Name</th>
+              <th>Job ID</th>
+              <th>Avg Duration</th>
+              <th>P95 Duration</th>
+              <th>Total Rows Processed</th>
+              <th>Throughput Rate</th>
+              <th>Success Rate %</th>
+            </tr>
+          </thead>
+          <tbody id="metricsPerformanceTableBody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading pipeline performance metrics from AWS RDS MySQL...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -1357,6 +1413,33 @@
       }
     }
 
+    async function fetchMetricsDetails() {
+      try {
+        const res = await fetch('/api/dashboard/metrics-details');
+        if (res.ok) {
+          const data = await res.json();
+          const tbody = document.getElementById('metricsPerformanceTableBody');
+          const metrics = data.metrics || [];
+
+          if (tbody && metrics.length > 0) {
+            tbody.innerHTML = metrics.map(m => `
+              <tr>
+                <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
+                <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
+                <td>${m.avg_duration}</td>
+                <td>${m.p95_duration}</td>
+                <td>${m.total_rows}</td>
+                <td><span style="color: var(--accent-emerald); font-weight: 600;">${m.throughput_rate}</span></td>
+                <td><span class="status-badge status-success"><span class="dot dot-success"></span>${m.success_rate}</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.log('Error fetching metrics details');
+      }
+    }
+
     // Startup initialization
     renderToolFields();
     renderSourceFields();
@@ -1366,6 +1449,7 @@
     fetchObservabilityDetails();
     fetchQualityDetails();
     fetchIncidents();
+    fetchMetricsDetails();
   </script>
 </body>
 </html>
