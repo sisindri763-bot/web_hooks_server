@@ -16,6 +16,8 @@ import logging
 import os
 import sqlite3
 import uuid
+import datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
@@ -755,13 +757,13 @@ def get_executive_summary() -> Dict[str, Any]:
         rows = int(r.get("rows_written") or r.get("rows_read") or 0)
         total_vol_sum += rows
         
-        t = r.get("saved_at") or r.get("start_time")
-        if t:
-            if isinstance(t, datetime):
-                dt_t = t
+        raw_t = r.get("saved_at") or r.get("start_time")
+        if raw_t:
+            if isinstance(raw_t, datetime):
+                dt_t = raw_t.replace(tzinfo=None) if getattr(raw_t, "tzinfo", None) is not None else raw_t
             else:
                 try:
-                    dt_t = datetime.strptime(str(t).split(".")[0], "%Y-%m-%d %H:%M:%S")
+                    dt_t = datetime.strptime(str(raw_t).split(".")[0], "%Y-%m-%d %H:%M:%S")
                 except Exception:
                     dt_t = None
             if dt_t and (most_recent_time is None or dt_t > most_recent_time):
