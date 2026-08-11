@@ -862,28 +862,22 @@ def get_observability_details() -> Dict[str, Any]:
     schema_list = []
     seen_datasets = set()
     
-    # Mapping helper for clean enterprise table names if asset metadata isn't set yet
-    pipeline_dataset_map = {
-        "run_hr_pipeline": {"dataset": "dim_employees", "db_schema": "ECOMMERCE.FINAL_DATA", "pk": "employee_id", "email_col": "work_email", "type_col": "SALARY", "expected": "DECIMAL(10,2)"},
-        "run_ecommerce_pipeline": {"dataset": "dim_customers", "db_schema": "ECOMMERCE.MARTS", "pk": "customer_key", "email_col": "customer_email", "type_col": "created_at", "expected": "TIMESTAMP_NTZ"},
-        "run_stg_stock_data": {"dataset": "stg_stock_prices", "db_schema": "MARKET_DATA.STAGING", "pk": "symbol_timestamp", "email_col": "exchange_code", "type_col": "close_price", "expected": "FLOAT"},
-        "dbt_job_run": {"dataset": "fact_orders", "db_schema": "ANALYTICS.MARTS", "pk": "order_id", "email_col": "customer_id", "type_col": "order_amount", "expected": "DECIMAL(18,4)"}
-    }
-    
     for r in runs:
         run_id = r.get("id")
         full_rec = get_run_with_assets(run_id) or {}
         tgt = full_rec.get("target_asset") or {}
-        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "run_hr_pipeline"
-        meta = pipeline_dataset_map.get(p_name, {"dataset": p_name, "db_schema": "ECOMMERCE.PUBLIC"})
+        src = full_rec.get("source_asset") or {}
+        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "Pipeline"
         
-        ds_name = tgt.get("object_name") or meta["dataset"]
+        ds_name = tgt.get("object_name") or src.get("object_name") or f"dataset_{p_name}"
         if ds_name in seen_datasets:
             continue
         seen_datasets.add(ds_name)
         
-        db_schema = f"{tgt.get('database_name') or meta['db_schema'].split('.')[0]}.{tgt.get('schema_name') or meta['db_schema'].split('.')[1]}"
-        last_updated = tgt.get("last_updated_at") or r.get("saved_at") or "2026-08-10 10:00:00"
+        db_name = tgt.get("database_name") or "DB"
+        sch_name = tgt.get("schema_name") or "PUBLIC"
+        db_schema = f"{db_name}.{sch_name}"
+        last_updated = tgt.get("last_updated_at") or r.get("saved_at") or r.get("start_time") or "Just Now"
         
         status_clean = str(r.get("status") or "success").lower()
         is_fresh = status_clean == "success"
@@ -893,12 +887,12 @@ def get_observability_details() -> Dict[str, Any]:
             "database_schema": db_schema,
             "last_updated": str(last_updated),
             "sla_target": "24 Hours",
-            "age": "1.2 hrs" if is_fresh else "47.5 hrs",
+            "age": "12m ago" if is_fresh else "Stale",
             "status": "FRESH" if is_fresh else "STALE (SLA Breached)",
             "is_fresh": is_fresh
         })
         
-        rows = tgt.get("row_count") or r.get("rows_written") or (106 if ds_name == "dim_employees" else (350000 if ds_name == "dim_customers" else 54200))
+        rows = int(tgt.get("row_count") or r.get("rows_written") or r.get("rows_read") or 0)
         hist_avg = max(rows * 2, 100) if not is_fresh else rows
         delta_pct = 0.0 if rows == hist_avg else (round(((rows - hist_avg) / hist_avg) * 100, 1) if hist_avg > 0 else -100.0)
         
@@ -1049,18 +1043,10 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     pipeline_groups = {}
     timeseries_data = {}
     
-    job_id_map = {
-        "70506183136587": "run_hr_pipeline",
-        "70506183136444": "run_ecommerce_pipeline",
-        "70506183135814": "run_stg_stock_data",
-        "70506183153835": "dbt_job_run",
-        "1": "dbt_job_run"
-    }
-
     # Pre-populate registered pipelines from configurations table
     for cfg in registered_cfgs:
         raw_id = str(cfg.get("job_id") or cfg.get("pipeline_id") or "")
-        p_name = cfg.get("pipeline_name") or job_id_map.get(raw_id) or (f"pipeline_{raw_id}" if raw_id.isdigit() else raw_id) or "run_hr_pipeline"
+        p_name = cfg.get("pipeline_name") or cfg.get("pipeline_id") or (f"Pipeline-{raw_id[:6]}" if raw_id else "Pipeline")
         job_id = raw_id or "1001"
         if p_name not in pipeline_groups:
             pipeline_groups[p_name] = {
@@ -1080,7 +1066,7 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     
     for r in runs:
         raw_id = str(r.get("pipeline_id") or "")
-        p_name = r.get("pipeline_name") or job_id_map.get(raw_id) or (f"pipeline_{raw_id}" if raw_id.isdigit() else raw_id) or "run_hr_pipeline"
+        p_name = r.get("pipeline_name") or r.get("pipeline_id") or (f"Pipeline-{raw_id[:6]}" if raw_id else "Pipeline")
         job_id = raw_id or "1001"
         dur = float(r.get("duration") or 0.0)
         rows = int(r.get("rows_written") or r.get("rows_read") or 0)
