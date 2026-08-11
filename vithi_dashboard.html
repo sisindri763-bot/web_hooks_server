@@ -1554,9 +1554,9 @@
         const res = await fetch('/api/dashboard/metrics-details');
         if (res.ok) {
           const data = await res.json();
-          const summary = data.summary || {};
-          const metrics = data.metrics || [];
-          gTimeseriesData = data.timeseries || {};
+          const summary = data.summary || (data.metrics ? data.metrics.summary : {}) || {};
+          const metrics = (Array.isArray(data.metrics) ? data.metrics : (data.metrics ? data.metrics.metrics : [])) || [];
+          gTimeseriesData = data.timeseries || (data.metrics ? data.metrics.timeseries : {}) || {};
 
           // 1. Update Top KPI Cards (Harmonized with DB!)
           const elLat = document.getElementById('metricCardAvgLatency');
@@ -1568,14 +1568,7 @@
           const elVol = document.getElementById('metricCardTotalVolume');
           if (elVol && summary.total_volume) elVol.innerText = summary.total_volume;
 
-          // 2. Populate Dropdown Filter
-          const select = document.getElementById('metricsPipelineFilter');
-          if (select && metrics.length > 0) {
-            select.innerHTML = `<option value="ALL">All Pipelines (Aggregated View)</option>` + 
-              metrics.map(m => `<option value="${m.pipeline_name}">${m.pipeline_name}</option>`).join('');
-          }
-
-          // 3. Populate Table
+          // 2. Populate Table
           const tbody = document.getElementById('metricsPerformanceTableBody');
           if (tbody && metrics.length > 0) {
             tbody.innerHTML = metrics.map(m => `
@@ -1592,7 +1585,7 @@
           }
         }
       } catch (err) {
-        console.log('Error fetching metrics details');
+        console.log('Error fetching metrics details', err);
       }
     }
 

@@ -492,8 +492,8 @@ def api_dashboard_incidents():
 
 @app.route("/api/dashboard/metrics-details", methods=["GET"])
 def api_dashboard_metrics_details():
-    metrics = get_metrics_performance_details()
-    return jsonify({"metrics": metrics}), 200
+    metrics_data = get_metrics_performance_details()
+    return jsonify(metrics_data), 200
 
 
 @app.route("/api/pipelines", methods=["GET"])
