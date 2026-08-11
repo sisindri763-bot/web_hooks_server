@@ -392,10 +392,10 @@
           <div id="kpiIncidents" class="kpi-val">5</div>
           <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
         </div>
-        <div class="kpi-card" onclick="switchTabById('observability')">
-          <div class="kpi-header"><span class="kpi-label">Datasets</span><span>🗄️</span></div>
-          <div id="kpiDatasets" class="kpi-val">1,342</div>
-          <div class="kpi-delta delta-up">▲ 68 vs yesterday</div>
+        <div class="kpi-card" onclick="switchTabById('metrics')">
+          <div class="kpi-header"><span class="kpi-label">Total Volume</span><span>🛡️</span></div>
+          <div id="kpiTotalVolume" class="kpi-val">1,000 rows</div>
+          <div class="kpi-delta delta-up">▲ live RDS sum</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Data Freshness</span><span>🟢</span></div>
@@ -1366,7 +1366,8 @@
           document.getElementById('kpiSuccess').textContent = data.success_rate;
           document.getElementById('kpiFailed').textContent = data.failed_pipelines;
           document.getElementById('kpiIncidents').textContent = data.incidents_count;
-          document.getElementById('kpiDatasets').textContent = data.datasets_count;
+          const elVol = document.getElementById('kpiTotalVolume');
+          if (elVol) elVol.textContent = data.total_volume || '1,000 rows';
           
           // Synchronized Freshness
           const freshVal = data.data_freshness || '91.3%';
