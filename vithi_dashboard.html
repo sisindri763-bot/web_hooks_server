@@ -762,10 +762,10 @@
         <div class="panel-head"><div class="panel-title">🔑 Uniqueness & Primary Key Tests</div></div>
         <table>
           <thead>
-            <tr><th>Dataset</th><th>Target Column</th><th>Total Records</th><th>Duplicate Count</th><th>Uniqueness Pass Rate</th><th>Status</th></tr>
+            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Total Records</th><th>Duplicate Count</th><th>Uniqueness Pass Rate</th><th>Status</th></tr>
           </thead>
           <tbody id="uniquenessTableBody">
-            <tr><td><strong>stg_employees</strong></td><td>employee_id</td><td>106</td><td>0 duplicates</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
+            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>employee_id</td><td>54,200</td><td>0 duplicates</td><td>100.00%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -775,10 +775,10 @@
         <div class="panel-head"><div class="panel-title">🚫 Null & Completeness Checks</div></div>
         <table>
           <thead>
-            <tr><th>Dataset</th><th>Target Column</th><th>Null Record Count</th><th>Completeness %</th><th>Status</th></tr>
+            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Null Record Count</th><th>Completeness %</th><th>Status</th></tr>
           </thead>
           <tbody id="completenessTableBody">
-            <tr><td><strong>stg_employees</strong></td><td>work_email</td><td>0 nulls</td><td>100%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
+            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>work_email</td><td>0 nulls</td><td>100.00%</td><td><span class="status-badge status-success"><span class="dot dot-success"></span>PASSED</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -788,10 +788,10 @@
         <div class="panel-head"><div class="panel-title">📐 Schema & Data Type Consistency Checks</div></div>
         <table>
           <thead>
-            <tr><th>Dataset</th><th>Target Column</th><th>Expected Data Type</th><th>Actual Data Type</th><th>Status</th></tr>
+            <tr><th>Pipeline</th><th>Target Dataset</th><th>Target Column</th><th>Expected Data Type</th><th>Actual Data Type</th><th>Status</th></tr>
           </thead>
           <tbody id="consistencyTableBody">
-            <tr><td><strong>stg_employees</strong></td><td>SALARY</td><td>DECIMAL(10,2)</td><td>MISSING_COLUMN</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>FAILED: COLUMN_NOT_FOUND</span></td></tr>
+            <tr><td><strong>run_hr_pipeline</strong></td><td>DIM_EMPLOYEES</td><td>SALARY</td><td>DECIMAL(10,2)</td><td>MISSING_COLUMN</td><td><span class="status-badge status-failed"><span class="dot dot-failed"></span>FAILED: COLUMN_NOT_FOUND</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1322,6 +1322,7 @@
           if (uniqBody && data.uniqueness) {
             uniqBody.innerHTML = data.uniqueness.map(u => `
               <tr>
+                <td><strong style="color: var(--accent-indigo);">${u.pipeline}</strong></td>
                 <td><strong>${u.dataset}</strong></td>
                 <td>${u.target_column}</td>
                 <td>${u.total_records}</td>
@@ -1336,6 +1337,7 @@
           if (compBody && data.completeness) {
             compBody.innerHTML = data.completeness.map(c => `
               <tr>
+                <td><strong style="color: var(--accent-indigo);">${c.pipeline}</strong></td>
                 <td><strong>${c.dataset}</strong></td>
                 <td>${c.target_column}</td>
                 <td>${c.null_count}</td>
@@ -1349,6 +1351,7 @@
           if (consBody && data.consistency) {
             consBody.innerHTML = data.consistency.map(c => `
               <tr>
+                <td><strong style="color: var(--accent-indigo);">${c.pipeline}</strong></td>
                 <td><strong>${c.dataset}</strong></td>
                 <td>${c.target_column}</td>
                 <td>${c.expected_type}</td>
