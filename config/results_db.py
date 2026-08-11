@@ -1049,10 +1049,19 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     pipeline_groups = {}
     timeseries_data = {}
     
+    job_id_map = {
+        "70506183136587": "run_hr_pipeline",
+        "70506183136444": "run_ecommerce_pipeline",
+        "70506183135814": "run_stg_stock_data",
+        "70506183153835": "dbt_job_run",
+        "1": "dbt_job_run"
+    }
+
     # Pre-populate registered pipelines from configurations table
     for cfg in registered_cfgs:
-        p_name = cfg.get("pipeline_id") or cfg.get("job_id") or "pipeline"
-        job_id = str(cfg.get("job_id") or "1001")
+        raw_id = str(cfg.get("job_id") or cfg.get("pipeline_id") or "")
+        p_name = cfg.get("pipeline_name") or job_id_map.get(raw_id) or (f"pipeline_{raw_id}" if raw_id.isdigit() else raw_id) or "run_hr_pipeline"
+        job_id = raw_id or "1001"
         if p_name not in pipeline_groups:
             pipeline_groups[p_name] = {
                 "job_id": job_id,
@@ -1070,8 +1079,9 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     all_throughputs = []
     
     for r in runs:
-        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "Pipeline"
-        job_id = str(r.get("pipeline_id") or "1001")
+        raw_id = str(r.get("pipeline_id") or "")
+        p_name = r.get("pipeline_name") or job_id_map.get(raw_id) or (f"pipeline_{raw_id}" if raw_id.isdigit() else raw_id) or "run_hr_pipeline"
+        job_id = raw_id or "1001"
         dur = float(r.get("duration") or 0.0)
         rows = int(r.get("rows_written") or r.get("rows_read") or 0)
         status_clean = str(r.get("status") or "success").lower()
