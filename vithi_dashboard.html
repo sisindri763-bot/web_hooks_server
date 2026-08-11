@@ -812,7 +812,7 @@
       </div>
       
       <!-- 1. TOP KPI SUMMARY CARDS (Clickable for Instant DB Breakdown Modals) -->
-      <div class="row-grid-middle" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+      <div class="row-grid-middle" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 0.75rem;">
         <div class="kpi-card" onclick="openMetricModal('latency')">
           <div class="kpi-label">Avg Execution Latency</div>
           <div id="metricCardAvgLatency" class="kpi-val" style="color: var(--accent-indigo);">11.9s</div>
@@ -833,8 +833,10 @@
           <div id="metricCardTotalVolume" class="kpi-val" style="color: var(--accent-blue);">1,000 rows</div>
           <div class="kpi-delta delta-up">🔍 Click for Volume Breakdown</div>
         </div>
-      <!-- 2. PIPELINE SELECTOR PILL BUTTONS -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.25rem; margin-bottom: 0.25rem;">
+      </div>
+
+      <!-- 2. PIPELINE SELECTOR PILL BUTTONS (Full Width Horizontal Row) -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; width: 100%;">
         <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">📈 Interactive Pipeline Filter:</div>
         <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;" id="pipelinePillsContainer">
           <button class="pill-btn active" onclick="filterMetricsChart('ALL', this)">All Pipelines</button>
@@ -1486,10 +1488,14 @@
           gTimeseriesData = data.timeseries || {};
 
           // 1. Update Top KPI Cards (Harmonized with DB!)
-          if (summary.avg_latency) document.getElementById('metricCardAvgLatency').innerText = summary.avg_latency;
-          if (summary.max_throughput) document.getElementById('metricCardMaxTp').innerText = summary.max_throughput;
-          if (summary.overall_sla) document.getElementById('metricCardOverallSla').innerText = summary.overall_sla;
-          if (summary.total_volume) document.getElementById('metricCardTotalVolume').innerText = summary.total_volume;
+          const elLat = document.getElementById('metricCardAvgLatency');
+          if (elLat && summary.avg_latency) elLat.innerText = summary.avg_latency;
+          const elTp = document.getElementById('metricCardMaxTp');
+          if (elTp && summary.max_throughput) elTp.innerText = summary.max_throughput;
+          const elSla = document.getElementById('metricCardOverallSla');
+          if (elSla && summary.overall_sla) elSla.innerText = summary.overall_sla;
+          const elVol = document.getElementById('metricCardTotalVolume');
+          if (elVol && summary.total_volume) elVol.innerText = summary.total_volume;
 
           // 2. Populate Dropdown Filter
           const select = document.getElementById('metricsPipelineFilter');
