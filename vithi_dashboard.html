@@ -778,29 +778,37 @@
 
     <!-- TAB 10: METRICS (Full-Width Enterprise Observability Performance Dashboard) -->
     <section id="tab-metrics" class="tab-section">
-      <div class="top-bar"><div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, P95 Duration, Row Throughput & Pipeline SLA Analytics</p></div></div>
+      <div class="top-bar">
+        <div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, P95 Duration, Row Throughput & Pipeline SLA Analytics</p></div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Filter Pipeline:</span>
+          <select id="metricsPipelineFilter" class="control-select" onchange="filterMetricsChart(this.value)">
+            <option value="ALL">All Pipelines (Aggregated)</option>
+          </select>
+        </div>
+      </div>
       
-      <!-- 1. TOP KPI SUMMARY CARDS -->
+      <!-- 1. TOP KPI SUMMARY CARDS (Harmonized with DB Table) -->
       <div class="row-grid-middle" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
         <div class="kpi-card" style="cursor: default;">
           <div class="kpi-label">Avg Execution Latency</div>
-          <div class="kpi-val" style="color: var(--accent-indigo);">14.2s</div>
-          <div class="kpi-delta delta-up">P95 SLA Target: 25.0s</div>
+          <div id="metricCardAvgLatency" class="kpi-val" style="color: var(--accent-indigo);">11.9s</div>
+          <div class="kpi-delta delta-up">P95 Target: &lt; 25.0s</div>
         </div>
         <div class="kpi-card" style="cursor: default;">
           <div class="kpi-label">Max Ingestion Throughput</div>
-          <div class="kpi-val" style="color: var(--accent-emerald);">2,450 <span style="font-size: 0.8rem; font-weight: 500;">rows/s</span></div>
-          <div class="kpi-delta delta-up">⚡ High Speed Extractor</div>
+          <div id="metricCardMaxTp" class="kpi-val" style="color: var(--accent-emerald);">58.4 rows/s</div>
+          <div class="kpi-delta delta-up">⚡ High Speed Stream</div>
         </div>
         <div class="kpi-card" style="cursor: default;">
-          <div class="kpi-label">Overall SLA Compliance</div>
-          <div class="kpi-val" style="color: var(--accent-purple);">96.2%</div>
-          <div class="kpi-delta delta-up">🟢 24/25 Jobs In SLA</div>
+          <div class="kpi-label">Overall Success Rate</div>
+          <div id="metricCardOverallSla" class="kpi-val" style="color: var(--accent-purple);">78.6%</div>
+          <div class="kpi-delta delta-up">🟢 Active Monitoring</div>
         </div>
         <div class="kpi-card" style="cursor: default;">
           <div class="kpi-label">Total Volume Processed</div>
-          <div class="kpi-val" style="color: var(--accent-blue);">1.2B <span style="font-size: 0.8rem; font-weight: 500;">rows</span></div>
-          <div class="kpi-delta delta-up">Across MySQL & Snowflake</div>
+          <div id="metricCardTotalVolume" class="kpi-val" style="color: var(--accent-blue);">1,000 rows</div>
+          <div class="kpi-delta delta-up">Harmonized DB Record Count</div>
         </div>
       </div>
 
@@ -1413,17 +1421,35 @@
       }
     }
 
+    let gTimeseriesData = {};
+
     async function fetchMetricsDetails() {
       try {
         const res = await fetch('/api/dashboard/metrics-details');
         if (res.ok) {
           const data = await res.json();
-          const tbody = document.getElementById('metricsPerformanceTableBody');
+          const summary = data.summary || {};
           const metrics = data.metrics || [];
+          gTimeseriesData = data.timeseries || {};
 
+          // 1. Update Top KPI Cards (Harmonized with DB!)
+          if (summary.avg_latency) document.getElementById('metricCardAvgLatency').innerText = summary.avg_latency;
+          if (summary.max_throughput) document.getElementById('metricCardMaxTp').innerText = summary.max_throughput;
+          if (summary.overall_sla) document.getElementById('metricCardOverallSla').innerText = summary.overall_sla;
+          if (summary.total_volume) document.getElementById('metricCardTotalVolume').innerText = summary.total_volume;
+
+          // 2. Populate Dropdown Filter
+          const select = document.getElementById('metricsPipelineFilter');
+          if (select && metrics.length > 0) {
+            select.innerHTML = `<option value="ALL">All Pipelines (Aggregated View)</option>` + 
+              metrics.map(m => `<option value="${m.pipeline_name}">${m.pipeline_name}</option>`).join('');
+          }
+
+          // 3. Populate Table
+          const tbody = document.getElementById('metricsPerformanceTableBody');
           if (tbody && metrics.length > 0) {
             tbody.innerHTML = metrics.map(m => `
-              <tr>
+              <tr style="cursor: pointer;" onclick="selectPipelineForChart('${m.pipeline_name}')">
                 <td><strong style="color: var(--accent-indigo);">${m.pipeline_name}</strong></td>
                 <td><span style="font-family: monospace; font-size: 0.78rem; color: var(--accent-blue);">${m.job_id}</span></td>
                 <td>${m.avg_duration}</td>
@@ -1438,6 +1464,18 @@
       } catch (err) {
         console.log('Error fetching metrics details');
       }
+    }
+
+    function selectPipelineForChart(name) {
+      const sel = document.getElementById('metricsPipelineFilter');
+      if (sel) {
+        sel.value = name;
+        filterMetricsChart(name);
+      }
+    }
+
+    function filterMetricsChart(selectedPipeline) {
+      console.log('Filtering metrics chart for:', selectedPipeline);
     }
 
     // Startup initialization

@@ -1000,17 +1000,25 @@ def get_incidents_list() -> List[Dict[str, Any]]:
     return incidents
 
 
-def get_metrics_performance_details() -> List[Dict[str, Any]]:
-    """Fetch live pipeline latency, throughput, and error metrics from RDS MySQL."""
+def get_metrics_performance_details() -> Dict[str, Any]:
+    """Fetch live pipeline latency, throughput, and error metrics from RDS MySQL with time-series history."""
     runs = list_recent_runs(50)
     pipeline_groups = {}
+    timeseries_data = {}
+    
+    total_all_rows = 0
+    total_all_runs = 0
+    total_all_successes = 0
+    all_durations = []
+    all_throughputs = []
     
     for r in runs:
         p_name = r.get("pipeline_name") or r.get("pipeline_id") or "run_hr_pipeline"
         job_id = str(r.get("pipeline_id") or "70506183135814")
-        dur = r.get("duration") or 14
-        rows = r.get("rows_written") or r.get("rows_read") or 0
+        dur = float(r.get("duration") or 12.0)
+        rows = int(r.get("rows_written") or r.get("rows_read") or 0)
         status_clean = str(r.get("status") or "success").lower()
+        t_stamp = str(r.get("start_time") or r.get("saved_at") or "12:00")
         
         if p_name not in pipeline_groups:
             pipeline_groups[p_name] = {
@@ -1018,16 +1026,29 @@ def get_metrics_performance_details() -> List[Dict[str, Any]]:
                 "durations": [],
                 "rows_list": [],
                 "successes": 0,
-                "total_runs": 0
+                "total_runs": 0,
+                "history": []
             }
-        
+            
         pipeline_groups[p_name]["durations"].append(dur)
         pipeline_groups[p_name]["rows_list"].append(rows)
         pipeline_groups[p_name]["total_runs"] += 1
+        
+        tp = round(rows / dur, 1) if dur > 0 else 0.0
+        pipeline_groups[p_name]["history"].append({"time": t_stamp, "latency": dur, "throughput": tp})
+        
+        total_all_rows += rows
+        total_all_runs += 1
+        all_durations.append(dur)
+        all_throughputs.append(tp)
+        
         if status_clean == "success":
             pipeline_groups[p_name]["successes"] += 1
+            total_all_successes += 1
             
     metrics_list = []
+    max_tp = max(all_throughputs) if all_throughputs else 0.0
+    
     for p_name, g in pipeline_groups.items():
         durs = g["durations"]
         avg_dur = round(sum(durs) / len(durs), 1) if durs else 12.0
@@ -1048,8 +1069,21 @@ def get_metrics_performance_details() -> List[Dict[str, Any]]:
             "throughput_rate": f"{tp_rate:,} rows/s",
             "success_rate": f"{succ_rate}%"
         })
+        timeseries_data[p_name] = g["history"]
         
-    return metrics_list
+    overall_avg_dur = round(sum(all_durations) / len(all_durations), 1) if all_durations else 12.0
+    overall_sla = round((total_all_successes / total_all_runs) * 100, 1) if total_all_runs > 0 else 100.0
+    
+    return {
+        "summary": {
+            "avg_latency": f"{overall_avg_dur}s",
+            "max_throughput": f"{max_tp:,} rows/s",
+            "overall_sla": f"{overall_sla}%",
+            "total_volume": f"{total_all_rows:,} rows"
+        },
+        "metrics": metrics_list,
+        "timeseries": timeseries_data
+    }
 
 
 
