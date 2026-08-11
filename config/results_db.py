@@ -1013,12 +1013,23 @@ def get_metrics_performance_details() -> Dict[str, Any]:
     all_throughputs = []
     
     for r in runs:
-        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "run_hr_pipeline"
-        job_id = str(r.get("pipeline_id") or "70506183135814")
-        dur = float(r.get("duration") or 12.0)
+        p_name = r.get("pipeline_name") or r.get("pipeline_id") or "Pipeline"
+        job_id = str(r.get("pipeline_id") or "1001")
+        dur = float(r.get("duration") or 0.0)
         rows = int(r.get("rows_written") or r.get("rows_read") or 0)
         status_clean = str(r.get("status") or "success").lower()
-        t_stamp = str(r.get("start_time") or r.get("saved_at") or "12:00")
+        
+        raw_t = r.get("saved_at") or r.get("start_time")
+        if isinstance(raw_t, datetime):
+            t_stamp = raw_t.strftime("%b %d %I:%M %p")
+        elif raw_t:
+            try:
+                dt = datetime.strptime(str(raw_t).split(".")[0], "%Y-%m-%d %H:%M:%S")
+                t_stamp = dt.strftime("%b %d %I:%M %p")
+            except Exception:
+                t_stamp = str(raw_t)[:16]
+        else:
+            t_stamp = datetime.now().strftime("%b %d %I:%M %p")
         
         if p_name not in pipeline_groups:
             pipeline_groups[p_name] = {

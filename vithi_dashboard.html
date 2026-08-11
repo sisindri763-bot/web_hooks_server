@@ -1568,7 +1568,19 @@
           const elVol = document.getElementById('metricCardTotalVolume');
           if (elVol && summary.total_volume) elVol.innerText = summary.total_volume;
 
-          // 2. Populate Table
+          // 2. Dynamically Populate Pipeline Filter Pills
+          const pillsContainer = document.getElementById('pipelinePillsContainer');
+          if (pillsContainer && metrics.length > 0) {
+            const palette = ["#818cf8", "#c084fc", "#34d399", "#38bdf8", "#f59e0b", "#ec4899"];
+            let html = `<button class="pill-btn active" onclick="filterMetricsChart('ALL', this)">All Pipelines (Aggregated)</button>`;
+            metrics.forEach((m, idx) => {
+              const c = palette[idx % palette.length];
+              html += `<button class="pill-btn" onclick="filterMetricsChart('${m.pipeline_name}', this)"><span style="color: ${c};">●</span> ${m.pipeline_name}</button>`;
+            });
+            pillsContainer.innerHTML = html;
+          }
+
+          // 3. Populate Table
           const tbody = document.getElementById('metricsPerformanceTableBody');
           if (tbody && metrics.length > 0) {
             tbody.innerHTML = metrics.map(m => `
@@ -1583,6 +1595,9 @@
               </tr>
             `).join('');
           }
+
+          // Initial dynamic chart filter call
+          filterMetricsChart('ALL');
         }
       } catch (err) {
         console.log('Error fetching metrics details', err);
@@ -1590,11 +1605,8 @@
     }
 
     function selectPipelineForChart(name) {
-      const sel = document.getElementById('metricsPipelineFilter');
-      if (sel) {
-        sel.value = name;
-        filterMetricsChart(name);
-      }
+      const btn = Array.from(document.querySelectorAll('#pipelinePillsContainer .pill-btn')).find(b => b.textContent.includes(name));
+      filterMetricsChart(name, btn);
     }
 
     function filterMetricsChart(selectedPipeline, btnEl) {
@@ -1602,30 +1614,32 @@
         document.querySelectorAll('#pipelinePillsContainer .pill-btn').forEach(b => b.classList.remove('active'));
         btnEl.classList.add('active');
       }
-      const sel = document.getElementById('metricsPipelineFilter');
-      if (sel && sel.value !== selectedPipeline) {
-        sel.value = selectedPipeline;
+
+      if (!window.mtrLatChart || !window.mtrTpChart || !gTimeseriesData) return;
+
+      const palette = ["#818cf8", "#c084fc", "#34d399", "#38bdf8", "#f59e0b", "#ec4899"];
+      const pipelineNames = Object.keys(gTimeseriesData);
+
+      let labels = [];
+      pipelineNames.forEach(pName => {
+        const hist = gTimeseriesData[pName] || [];
+        hist.forEach(h => {
+          if (h.time && !labels.includes(h.time)) labels.push(h.time);
+        });
+      });
+      if (labels.length === 0) {
+        labels = ['Aug 11 12:00 PM', 'Aug 11 02:00 PM', 'Aug 11 04:00 PM', 'Aug 11 06:00 PM', 'Aug 11 08:00 PM', 'Aug 11 10:00 PM', 'Aug 12 12:00 AM'];
       }
-
-      if (!window.mtrLatChart || !window.mtrTpChart) return;
-
-      const colors = {
-        "run_hr_pipeline": "#818cf8",
-        "run_ecommerce_pipeline": "#c084fc",
-        "run_stg_stock_data": "#34d399",
-        "dbt_job_run": "#38bdf8"
-      };
 
       let latDatasets = [];
       let tpDatasets = [];
-      const labels = ['Aug 11 12:00 PM', 'Aug 11 02:00 PM', 'Aug 11 04:00 PM', 'Aug 11 06:00 PM', 'Aug 11 08:00 PM', 'Aug 11 10:00 PM', 'Aug 12 12:00 AM'];
 
       if (selectedPipeline === 'ALL') {
-        Object.keys(gTimeseriesData).forEach(pName => {
+        pipelineNames.forEach((pName, idx) => {
           const hist = gTimeseriesData[pName] || [];
           const latData = hist.length ? hist.map(h => h.latency) : [11.3, 12.0, 10.5, 14.0, 11.3, 12.5, 11.3];
           const tpData = hist.length ? hist.map(h => h.throughput) : [58.4, 42.1, 55.0, 58.4, 30.0, 58.4, 52.0];
-          const color = colors[pName] || '#6366f1';
+          const color = palette[idx % palette.length];
 
           latDatasets.push({
             label: pName,
@@ -1646,10 +1660,11 @@
           });
         });
       } else {
+        const idx = pipelineNames.indexOf(selectedPipeline);
+        const color = palette[idx >= 0 ? idx % palette.length : 0];
         const hist = gTimeseriesData[selectedPipeline] || [];
         const latData = hist.length ? hist.map(h => h.latency) : [11.3, 12.0, 10.5, 14.0, 11.3, 12.5, 11.3];
         const tpData = hist.length ? hist.map(h => h.throughput) : [58.4, 55.0, 58.4, 40.0, 58.4, 52.0, 58.4];
-        const color = colors[selectedPipeline] || '#6366f1';
 
         latDatasets.push({
           label: `${selectedPipeline} (Latency s)`,
