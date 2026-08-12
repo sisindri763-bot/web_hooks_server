@@ -370,37 +370,37 @@
         </div>
       </div>
 
-      <!-- CLICKABLE 6 KPI CARDS (Matching Image 2) -->
+      <!-- CLICKABLE 6 KPI CARDS (Matching Image 2 exactly) -->
       <div class="kpi-grid">
         <div class="kpi-card" onclick="switchTabById('pipelines')">
           <div class="kpi-header"><span class="kpi-label">Pipelines</span><span>🔌</span></div>
-          <div id="kpiPipelines" class="kpi-val">247</div>
-          <div class="kpi-delta delta-up">▲ 12 vs yesterday</div>
+          <div id="kpiPipelines" class="kpi-val">—</div>
+          <div id="kpiPipelinesDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('metrics')">
           <div class="kpi-header"><span class="kpi-label">Success Rate</span><span>📈</span></div>
-          <div id="kpiSuccess" class="kpi-val">96.2%</div>
-          <div class="kpi-delta delta-up">▲ 2.1% vs yesterday</div>
+          <div id="kpiSuccess" class="kpi-val">—</div>
+          <div id="kpiSuccessDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('incidents')">
           <div class="kpi-header"><span class="kpi-label">Failed Pipelines</span><span>🔴</span></div>
-          <div id="kpiFailed" class="kpi-val">9</div>
-          <div class="kpi-delta delta-down">▼ 3 vs yesterday</div>
+          <div id="kpiFailed" class="kpi-val">—</div>
+          <div id="kpiFailedDelta" class="kpi-delta delta-down">Loading...</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('incidents')">
           <div class="kpi-header"><span class="kpi-label">Incidents</span><span>🛡️</span></div>
-          <div id="kpiIncidents" class="kpi-val">5</div>
-          <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
+          <div id="kpiIncidents" class="kpi-val">—</div>
+          <div id="kpiIncidentsDelta" class="kpi-delta delta-down">Loading...</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Datasets</span><span>🗄️</span></div>
-          <div id="kpiTotalVolume" class="kpi-val">1,342</div>
-          <div class="kpi-delta delta-up">▲ 68 vs yesterday</div>
+          <div id="kpiTotalVolume" class="kpi-val">—</div>
+          <div id="kpiDatasetsDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card" onclick="switchTabById('observability')">
           <div class="kpi-header"><span class="kpi-label">Data Freshness</span><span>🟢</span></div>
-          <div id="kpiFreshness" class="kpi-val">91.3%</div>
-          <div class="kpi-delta delta-up">▲ 1.8% vs yesterday</div>
+          <div id="kpiFreshness" class="kpi-val">—</div>
+          <div id="kpiFreshnessDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
       </div>
 
@@ -423,35 +423,8 @@
             <div class="panel-title">Active Incidents</div>
             <span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('incidents')">View all</span>
           </div>
-          <div class="incident-scroll-box">
-            <div class="incident-item">
-              <span class="badge-p1">P1</span>
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 700;">Orders_Load Pipeline Failed</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Pipeline failed at Load to Snowflake • 5m ago</div>
-              </div>
-            </div>
-            <div class="incident-item">
-              <span class="badge-p2">P2</span>
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 700;">Customer Table Freshness Anomaly</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Table is 47m stale (Threshold: 10m) • 12m ago</div>
-              </div>
-            </div>
-            <div class="incident-item">
-              <span class="badge-p2">P2</span>
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 700;">Sales Volume Anomaly</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">Volume dropped by 65% • 18m ago</div>
-              </div>
-            </div>
-            <div class="incident-item">
-              <span class="badge-p3">P3</span>
-              <div>
-                <div style="font-size: 0.78rem; font-weight: 700;">Schema Change Detected</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">New column 'discount_code' in orders • 1h ago</div>
-              </div>
-            </div>
+          <div id="activeIncidentsContainer" class="incident-scroll-box">
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading incidents...</div>
           </div>
         </div>
       </div>
@@ -461,12 +434,12 @@
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Data Observability Pillars</div></div>
           <div class="score-grid">
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div id="scoreFreshness" class="score-val">91.3%</div></div>
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div class="score-val">93.7%</div></div>
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div class="score-val">98.6%</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div class="score-val">88.9%</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div class="score-val">94.2%</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div class="score-val">97.1%</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div id="scoreFreshness" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div id="scoreVolume" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div id="scoreSchema" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div id="scoreQuality" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div id="scoreConsistency" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div id="scoreUniqueness" class="score-val">—</div></div>
           </div>
         </div>
 
@@ -518,20 +491,8 @@
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Data Freshness (Top Datasets)</div></div>
-          <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
-            <span><strong>dim_customer</strong></span><span style="color: var(--accent-emerald); font-weight: 700;">2m ago</span>
-          </div>
-          <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
-            <span><strong>fact_orders</strong></span><span style="color: var(--accent-emerald); font-weight: 700;">3m ago</span>
-          </div>
-          <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
-            <span><strong>fact_sales</strong></span><span style="color: #fde047; font-weight: 700;">12m ago</span>
-          </div>
-          <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
-            <span><strong>dim_product</strong></span><span style="color: #fde047; font-weight: 700;">15m ago</span>
-          </div>
-          <div style="font-size: 0.78rem; display: flex; justify-content: space-between;">
-            <span><strong>agg_daily_revenue</strong></span><span style="color: var(--accent-rose); font-weight: 700;">47m ago</span>
+          <div id="freshnessDatasetsContainer">
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading...</div>
           </div>
         </div>
       </div>
@@ -567,37 +528,8 @@
             <div class="panel-title">System Health</div>
             <span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('infrastructure')">View all</span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
-                <span>NiFi Cluster</span><span style="color: var(--accent-emerald);">Healthy 98%</span>
-              </div>
-              <div class="bar-track" style="height: 6px;"><div class="bar-fill-emerald" style="width: 98%;"></div></div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
-                <span>Snowflake Warehouse</span><span style="color: var(--accent-emerald);">Healthy 96%</span>
-              </div>
-              <div class="bar-track" style="height: 6px;"><div class="bar-fill-emerald" style="width: 96%;"></div></div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
-                <span>MySQL Database</span><span style="color: #fde047;">Warning 82%</span>
-              </div>
-              <div class="bar-track" style="height: 6px;"><div class="bar-fill-rose" style="width: 82%; background: #fde047;"></div></div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
-                <span>Redshift Cluster</span><span style="color: var(--accent-emerald);">Healthy 97%</span>
-              </div>
-              <div class="bar-track" style="height: 6px;"><div class="bar-fill-emerald" style="width: 97%;"></div></div>
-            </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
-                <span>S3 Storage</span><span style="color: var(--accent-emerald);">Healthy 99%</span>
-              </div>
-              <div class="bar-track" style="height: 6px;"><div class="bar-fill-emerald" style="width: 99%;"></div></div>
-            </div>
+          <div id="systemHealthContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading...</div>
           </div>
         </div>
       </div>
@@ -1628,20 +1560,36 @@
         const resSum = await fetch('/api/dashboard/summary');
         if (resSum.ok) {
           const data = await resSum.json();
-          document.getElementById('kpiPipelines').textContent = data.pipelines_count;
-          document.getElementById('kpiSuccess').textContent = data.success_rate;
-          document.getElementById('kpiFailed').textContent = data.failed_pipelines;
-          document.getElementById('kpiIncidents').textContent = data.incidents_count;
-          const elDatasets = document.getElementById('kpiTotalVolume');
-          if (elDatasets) elDatasets.textContent = data.datasets_count ? data.datasets_count.toLocaleString() : '1,342';
-          
-          // Synchronized Freshness
-          const freshVal = data.data_freshness || '91.3%';
-          document.getElementById('kpiFreshness').textContent = freshVal;
-          document.getElementById('scoreFreshness').textContent = freshVal;
-          document.getElementById('obsScoreFreshness').textContent = freshVal;
 
-          // Render Top Pipelines by Volume dynamically from RDS MySQL
+          // ── 6 KPI Cards ──────────────────────────────────────────────────────
+          document.getElementById('kpiPipelines').textContent = data.pipelines_count ?? '—';
+          document.getElementById('kpiSuccess').textContent = data.success_rate ?? '—';
+          document.getElementById('kpiFailed').textContent = data.failed_pipelines ?? '—';
+          document.getElementById('kpiIncidents').textContent = data.incidents_count ?? '—';
+          const elDatasets = document.getElementById('kpiTotalVolume');
+          if (elDatasets) elDatasets.textContent = data.datasets_count != null ? data.datasets_count.toLocaleString() : '—';
+          document.getElementById('kpiFreshness').textContent = data.data_freshness ?? '—';
+
+          // Delta rows
+          const setEl = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
+          setEl('kpiPipelinesDelta', data.pipelines_delta);
+          setEl('kpiSuccessDelta', data.success_rate_delta);
+          setEl('kpiFailedDelta', data.failed_delta);
+          setEl('kpiIncidentsDelta', data.incidents_delta);
+          setEl('kpiDatasetsDelta', data.datasets_delta);
+          setEl('kpiFreshnessDelta', data.freshness_delta);
+
+          // ── Observability Pillar Scores ───────────────────────────────────────
+          const obs = data.observability_scores || {};
+          setEl('scoreFreshness', obs.freshness != null ? obs.freshness + '%' : '—');
+          setEl('obsScoreFreshness', obs.freshness != null ? obs.freshness + '%' : '—');
+          setEl('scoreVolume', obs.volume != null ? obs.volume + '%' : '—');
+          setEl('scoreSchema', obs.schema != null ? obs.schema + '%' : '—');
+          setEl('scoreQuality', obs.data_quality != null ? obs.data_quality + '%' : '—');
+          setEl('scoreConsistency', obs.consistency != null ? obs.consistency + '%' : '—');
+          setEl('scoreUniqueness', obs.uniqueness != null ? obs.uniqueness + '%' : '—');
+
+          // ── Top Pipelines by Volume ───────────────────────────────────────────
           const volContainer = document.getElementById('topPipelinesVolumeContainer');
           if (volContainer && data.top_volume_pipelines && data.top_volume_pipelines.length > 0) {
             volContainer.innerHTML = data.top_volume_pipelines.map(v => `
@@ -1652,7 +1600,7 @@
             `).join('');
           }
 
-          // Render Failure Rate by Pipeline dynamically from RDS MySQL
+          // ── Failure Rate by Pipeline ──────────────────────────────────────────
           const failContainer = document.getElementById('failureRateContainer');
           if (failContainer && data.failure_rate_pipelines && data.failure_rate_pipelines.length > 0) {
             failContainer.innerHTML = data.failure_rate_pipelines.map(f => `
@@ -1662,7 +1610,57 @@
               </div>
             `).join('');
           }
+
+          // ── Freshness Top Datasets ────────────────────────────────────────────
+          const freshDs = document.getElementById('freshnessDatasetsContainer');
+          if (freshDs && data.freshness_top_datasets && data.freshness_top_datasets.length > 0) {
+            freshDs.innerHTML = data.freshness_top_datasets.map((d, i) => {
+              const ageNum = parseInt(d.age) || 0;
+              const ageColor = d.age.includes('d') ? 'var(--accent-rose)' : (ageNum > 60 ? '#fde047' : 'var(--accent-emerald)');
+              const border = i < data.freshness_top_datasets.length - 1 ? 'margin-bottom: 0.45rem;' : '';
+              return `<div style="font-size: 0.78rem; display: flex; justify-content: space-between; ${border}">
+                <span><strong>${d.dataset}</strong></span><span style="color: ${ageColor}; font-weight: 700;">${d.age}</span>
+              </div>`;
+            }).join('');
+          } else if (freshDs) {
+            freshDs.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted);">No dataset updates recorded yet.</div>';
+          }
+
+          // ── Active Incidents (from failed pipeline runs) ──────────────────────
+          const incBox = document.getElementById('activeIncidentsContainer');
+          if (incBox && data.active_incidents && data.active_incidents.length > 0) {
+            incBox.innerHTML = data.active_incidents.map(inc => `
+              <div class="incident-item">
+                <span class="badge-${inc.severity.toLowerCase()}">${inc.severity}</span>
+                <div>
+                  <div style="font-size: 0.78rem; font-weight: 700;">${inc.pipeline_name} Pipeline ${inc.status}</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">${inc.error} • ${inc.age}</div>
+                </div>
+              </div>
+            `).join('');
+          } else if (incBox) {
+            incBox.innerHTML = '<div style="text-align:center; color: var(--accent-emerald); font-size: 0.78rem; padding: 1rem;">✓ No active incidents</div>';
+          }
+
+          // ── System Health (from actual RDS run data per system) ───────────────
+          const sysHealth = document.getElementById('systemHealthContainer');
+          if (sysHealth && data.system_health && data.system_health.length > 0) {
+            sysHealth.innerHTML = data.system_health.map(s => {
+              const col = s.status === 'Healthy' ? 'var(--accent-emerald)' : (s.status === 'Warning' ? '#fde047' : 'var(--accent-rose)');
+              const fillClass = s.status === 'Healthy' ? 'bar-fill-emerald' : (s.status === 'Critical' ? 'bar-fill-rose' : '');
+              const fillStyle = s.status === 'Warning' ? `background: #fde047; height: 6px; border-radius: 3px; width: ${s.health_pct}%;` : `width: ${s.health_pct}%;`;
+              return `<div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
+                  <span>${s.system}</span><span style="color: ${col};">${s.status} ${s.health_pct}%</span>
+                </div>
+                <div class="bar-track" style="height: 6px;"><div class="${fillClass}" style="${fillStyle}"></div></div>
+              </div>`;
+            }).join('');
+          } else if (sysHealth) {
+            sysHealth.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted);">No system data available.</div>';
+          }
         }
+
 
         const resTable = await fetch('/api/dashboard/recent-runs');
         if (resTable.ok) {
