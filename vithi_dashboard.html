@@ -486,23 +486,25 @@
             <div class="panel-title">Pipeline Runs (Recent)</div>
             <span style="font-size: 0.75rem; color: var(--text-muted);">Click any row to open/close full run logs & details</span>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Pipeline</th>
-                <th>Source ➔ Target</th>
-                <th>Status</th>
-                <th>Duration</th>
-                <th>Records</th>
-                <th>Start Time</th>
-                <th>Last Run</th>
-                <th>Owner</th>
-              </tr>
-            </thead>
-            <tbody id="vithiTableBody">
-              <!-- Dynamic rows populated via JS -->
-            </tbody>
-          </table>
+          <div style="overflow-x: auto; width: 100%;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pipeline</th>
+                  <th>Source ➔ Target</th>
+                  <th>Status</th>
+                  <th>Duration</th>
+                  <th>Records</th>
+                  <th>Start Time</th>
+                  <th>Last Run</th>
+                  <th>Owner</th>
+                </tr>
+              </thead>
+              <tbody id="vithiTableBody">
+                <!-- Dynamic rows populated via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="panel-card">
@@ -563,23 +565,25 @@
           <div class="panel-title">Pipeline Execution Table</div>
           <span style="font-size: 0.75rem; color: var(--text-muted);">Click any row to open/close full run logs & details</span>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Pipeline</th>
-              <th>Source ➔ Target</th>
-              <th>Status</th>
-              <th>Duration</th>
-              <th>Records</th>
-              <th>Start Time</th>
-              <th>Last Run</th>
-              <th>Owner</th>
-            </tr>
-          </thead>
-          <tbody id="vithiTableBody">
-            <!-- Dynamic rows populated via JS -->
-          </tbody>
-        </table>
+        <div style="overflow-x: auto; width: 100%;">
+          <table>
+            <thead>
+              <tr>
+                <th>Pipeline</th>
+                <th>Source ➔ Target</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Records</th>
+                <th>Start Time</th>
+                <th>Last Run</th>
+                <th>Owner</th>
+              </tr>
+            </thead>
+            <tbody id="pipelinesDrillTableBody">
+              <!-- Dynamic rows populated via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -858,54 +862,9 @@
         <div class="panel-head">
           <div class="panel-title">Failed Pipelines & Active Incidents Feed</div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Pipeline / Incident</th>
-              <th>Severity</th>
-              <th>Status</th>
-              <th>Detected Time</th>
-              <th>Error Details / Impact</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Orders_Load Pipeline Failed</strong></td>
-              <td><span class="badge-p1">P1</span></td>
-              <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Open</span></td>
-              <td>5m ago</td>
-              <td><span style="color: #fda4af; font-family: monospace; font-size: 0.78rem;">Snowflake connection timeout on load stage</span></td>
-            </tr>
-            <tr>
-              <td><strong>run_hr_pipeline Error</strong></td>
-              <td><span class="badge-p1">P1</span></td>
-              <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Open</span></td>
-              <td>12m ago</td>
-              <td><span style="color: #fda4af; font-family: monospace; font-size: 0.78rem;">Model 'stg_employees': invalid identifier 'SALARY'</span></td>
-            </tr>
-            <tr>
-              <td><strong>Customer Freshness Anomaly</strong></td>
-              <td><span class="badge-p2">P2</span></td>
-              <td><span class="status-badge status-warning"><span class="dot dot-warning"></span>In Progress</span></td>
-              <td>18m ago</td>
-              <td>Table is 47m stale (Threshold: 10m)</td>
-            </tr>
-            <tr>
-              <td><strong>Sales Volume Anomaly</strong></td>
-              <td><span class="badge-p2">P2</span></td>
-              <td><span class="status-badge status-warning"><span class="dot dot-warning"></span>In Progress</span></td>
-              <td>1h ago</td>
-              <td>Volume dropped by 65% on sales stream</td>
-            </tr>
-            <tr>
-              <td><strong>Schema Change Detected</strong></td>
-              <td><span class="badge-p3">P3</span></td>
-              <td><span class="status-badge status-success"><span class="dot dot-success"></span>Resolved</span></td>
-              <td>2h ago</td>
-              <td>New column 'discount_code' added to orders</td>
-            </tr>
-          </tbody>
-        </table>
+        <div id="incidentsTabFeed">
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading incidents from AWS RDS MySQL...</div>
+        </div>
       </div>
     </section>
 
@@ -1714,7 +1673,10 @@
                 </tr>
               `;
             }
-            tbody.innerHTML = html;
+            const tbody1 = document.getElementById('vithiTableBody');
+            if (tbody1) tbody1.innerHTML = html;
+            const tbody2 = document.getElementById('pipelinesDrillTableBody');
+            if (tbody2) tbody2.innerHTML = html;
             document.getElementById('logsTerminal').textContent = JSON.stringify(data.runs[0] || {}, null, 2);
           }
         }
