@@ -445,47 +445,29 @@
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Lineage & Impact</div><span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('lineage')">View full lineage</span></div>
-          <div class="lineage-card">
-            <div class="node-box">🗄️ MySQL<br/><span style="font-size: 0.6rem; color: var(--text-muted);">customers, orders</span></div>
-            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
-            <div class="node-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4);">⚙️ Apache NiFi<br/><span style="font-size: 0.6rem; color: var(--text-muted);">Customer_Load, Orders_Load</span></div>
-            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
-            <div class="node-box" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);">❄️ Snowflake<br/><span style="font-size: 0.6rem; color: var(--text-muted);">dim_customer, fact_orders</span></div>
+          <div id="lineageNodesContainer" class="lineage-card">
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 0.5rem;">Loading lineage...</div>
           </div>
-          <div style="font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem;">Downstream Impact</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-            <span>📊 Sales Dashboard</span><span style="color: var(--accent-rose); font-weight: 700;">High</span>
-          </div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-            <span>📈 Revenue Report</span><span style="color: var(--accent-rose); font-weight: 700;">High</span>
-          </div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
-            <span>🤖 ML Customer Churn Model</span><span style="color: #fde047; font-weight: 700;">Medium</span>
+          <div style="font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem; margin-top: 0.5rem;">Downstream Impact</div>
+          <div id="lineageDownstreamContainer">
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Loading...</div>
           </div>
         </div>
       </div>
 
-      <!-- 3-COLUMN BREAKDOWN ROW (Matching Image 2) -->
+      <!-- 3-COLUMN BREAKDOWN ROW (Top Pipelines, Failure Rate, Freshness Datasets) -->
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Top Pipelines by Volume</div></div>
           <div id="topPipelinesVolumeContainer">
-            <div class="bar-row"><div class="bar-label"><span>Customer_Load</span><span style="color: var(--accent-emerald);">1.2B</span></div><div class="bar-track"><div class="bar-fill-emerald" style="width: 100%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Orders_Load</span><span style="color: var(--accent-emerald);">987M</span></div><div class="bar-track"><div class="bar-fill-emerald" style="width: 82%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Sales_Load</span><span style="color: var(--accent-emerald);">654M</span></div><div class="bar-track"><div class="bar-fill-emerald" style="width: 55%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Inventory_Sync</span><span style="color: var(--accent-emerald);">321M</span></div><div class="bar-track"><div class="bar-fill-emerald" style="width: 27%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Payment_Load</span><span style="color: var(--accent-emerald);">123M</span></div><div class="bar-track"><div class="bar-fill-emerald" style="width: 10%;"></div></div></div>
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading from RDS...</div>
           </div>
         </div>
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Failure Rate by Pipeline</div></div>
           <div id="failureRateContainer">
-            <div class="bar-row"><div class="bar-label"><span>Orders_Load</span><span style="color: var(--accent-rose); font-weight: 700;">12.3%</span></div><div class="bar-track"><div class="bar-fill-rose" style="width: 85%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Payment_Load</span><span style="color: var(--accent-rose); font-weight: 700;">5.2%</span></div><div class="bar-track"><div class="bar-fill-rose" style="width: 45%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Inventory_Sync</span><span style="color: var(--accent-rose); font-weight: 700;">2.1%</span></div><div class="bar-track"><div class="bar-fill-rose" style="width: 20%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Customer_Load</span><span style="color: var(--accent-rose); font-weight: 700;">0.8%</span></div><div class="bar-track"><div class="bar-fill-rose" style="width: 8%;"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>Sales_Load</span><span style="color: var(--accent-rose); font-weight: 700;">0.3%</span></div><div class="bar-track"><div class="bar-fill-rose" style="width: 3%;"></div></div></div>
+            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading from RDS...</div>
           </div>
         </div>
 
@@ -1792,6 +1774,56 @@
       }
     }
 
+    async function fetchLineageData() {
+      try {
+        const res = await fetch('/api/dashboard/lineage');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // ── Lineage Nodes ──────────────────────────────────────────────────────
+        const nodesEl = document.getElementById('lineageNodesContainer');
+        if (nodesEl && data.source_systems && data.source_systems.length > 0) {
+          const srcSys = data.source_systems[0];
+          const tgtSys = data.target_systems && data.target_systems.length > 0 ? data.target_systems[0] : { system: 'Snowflake', objects: [] };
+          const pipelines = data.pipelines || [];
+          const pipelineNames = pipelines.map(p => p.pipeline_name).slice(0, 2).join(', ');
+
+          const srcIcon = (srcSys.system || '').toLowerCase().includes('snowflake') ? '❄️' : '🗄️';
+          const tgtIcon = (tgtSys.system || '').toLowerCase().includes('snowflake') ? '❄️' : '🗄️';
+          const srcObjs = (srcSys.objects || []).slice(0, 2).join(', ') || srcSys.system;
+          const tgtObjs = (tgtSys.objects || []).slice(0, 2).join(', ') || tgtSys.system;
+
+          nodesEl.innerHTML = `
+            <div class="node-box">${srcIcon} ${srcSys.system}<br/><span style="font-size: 0.6rem; color: var(--text-muted);">${srcObjs}</span></div>
+            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
+            <div class="node-box" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4);">⚙️ dbt Cloud<br/><span style="font-size: 0.6rem; color: var(--text-muted);">${pipelineNames || 'Pipelines'}</span></div>
+            <div style="font-size: 0.65rem; color: var(--text-muted);">➔</div>
+            <div class="node-box" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);">${tgtIcon} ${tgtSys.system}<br/><span style="font-size: 0.6rem; color: var(--text-muted);">${tgtObjs}</span></div>
+          `;
+        } else if (nodesEl) {
+          nodesEl.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted);">No lineage data yet.</div>';
+        }
+
+        // ── Downstream Impact ──────────────────────────────────────────────────
+        const downEl = document.getElementById('lineageDownstreamContainer');
+        if (downEl && data.downstream_impact && data.downstream_impact.length > 0) {
+          downEl.innerHTML = data.downstream_impact.map((d, i) => {
+            const col = d.impact === 'High' ? 'var(--accent-rose)' : '#fde047';
+            const icon = d.impact === 'High' ? '📊' : '🤖';
+            const border = i < data.downstream_impact.length - 1 ? 'margin-bottom: 0.25rem;' : '';
+            return `<div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; ${border}">
+              <span>${icon} ${d.name} (${d.datasets} datasets)</span>
+              <span style="color: ${col}; font-weight: 700;">${d.impact}</span>
+            </div>`;
+          }).join('');
+        } else if (downEl) {
+          downEl.innerHTML = '<div style="font-size: 0.72rem; color: var(--text-muted);">Analytics &amp; reporting pipelines downstream.</div>';
+        }
+      } catch (err) {
+        console.log('Error fetching lineage data:', err);
+      }
+    }
+
     async function fetchQualityDetails() {
       try {
         const res = await fetch('/api/dashboard/quality-details');
@@ -2126,6 +2158,13 @@
     fetchQualityDetails();
     fetchIncidents();
     fetchMetricsDetails();
+    fetchLineageData();
+
+    // Auto-refresh every 5 minutes
+    setInterval(() => {
+      fetchVithiData();
+      fetchLineageData();
+    }, 300000);
   </script>
 </body>
 </html>
