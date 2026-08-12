@@ -1276,6 +1276,20 @@
       if (targetSec) targetSec.classList.add('active');
 
       if (tabId === 'pipelines' || tabId === 'connectors') fetchPipelines();
+
+      setTimeout(() => {
+        if (tabId === 'pipelines') {
+          if (window.pipelineStatusTrendChart) window.pipelineStatusTrendChart.resize();
+          if (window.pipelineDistChart) window.pipelineDistChart.resize();
+        } else if (tabId === 'observability') {
+          if (window.obsScoreTrendChart) window.obsScoreTrendChart.resize();
+        } else if (tabId === 'metrics') {
+          if (window.metricDonutChart) window.metricDonutChart.resize();
+          if (window.costOverTimeChart) window.costOverTimeChart.resize();
+          if (window.mtrLatChart) window.mtrLatChart.resize();
+          if (window.mtrTpChart) window.mtrTpChart.resize();
+        }
+      }, 50);
     }
 
     function switchTabById(tabId) {
@@ -1665,6 +1679,34 @@
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+    });
+
+    const ctxPlStatus = document.getElementById('chartPipelineStatusOverTime').getContext('2d');
+    window.pipelineStatusTrendChart = new Chart(ctxPlStatus, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '15:00', '18:00', '21:00', '00:00', '03:00', '06:00', '09:00'],
+        datasets: [
+          { label: 'Success', data: [120, 135, 110, 140, 125, 150, 130, 145], borderColor: '#10b981', tension: 0.4, borderWidth: 2, pointRadius: 0 },
+          { label: 'Failed', data: [12, 18, 10, 22, 15, 20, 14, 16], borderColor: '#f43f5e', tension: 0.4, borderWidth: 2, pointRadius: 0 },
+          { label: 'Running', data: [40, 45, 38, 42, 40, 48, 42, 45], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, pointRadius: 0 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+    });
+
+    const ctxPlDist = document.getElementById('chartPipelineDistribution').getContext('2d');
+    window.pipelineDistChart = new Chart(ctxPlDist, {
+      type: 'doughnut',
+      data: {
+        labels: ['Success', 'Failed', 'Running', 'Cancelled'],
+        datasets: [{
+          data: [7, 6, 0, 0],
+          backgroundColor: ['#10b981', '#f43f5e', '#38bdf8', '#94a3b8'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
     });
 
     function toggleRunDetails(runId) {
