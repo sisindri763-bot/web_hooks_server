@@ -967,26 +967,25 @@
         </div>
       </div>
       
-      <!-- CARD 12 TOP ROW: METRIC/COST BREAKDOWN DONUT + COST OVER TIME -->
+      <!-- CARD 12 TOP ROW: ETL PIPELINE SYSTEM BREAKDOWN DONUT + VOLUME OVER TIME -->
       <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1rem; margin-bottom: 1.25rem;">
         <div class="panel-card">
-          <div class="panel-head"><div class="panel-title">🍩 Resource &amp; Infrastructure Cost Breakdown</div></div>
+          <div class="panel-head"><div class="panel-title">🍩 ETL System Volume &amp; Load Breakdown</div></div>
           <div style="display: flex; align-items: center; justify-content: space-around; height: 180px;">
             <div style="width: 140px; height: 140px; position: relative;">
               <canvas id="chartMetricDonut"></canvas>
             </div>
             <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem;">
-              <div><span style="color: #38bdf8;">●</span> <strong>Snowflake:</strong> $6,240 (52%)</div>
-              <div><span style="color: #a855f7;">●</span> <strong>AWS EC2:</strong> $2,310 (23%)</div>
-              <div><span style="color: #10b981;">●</span> <strong>S3 Storage:</strong> $1,840 (15%)</div>
-              <div><span style="color: #6366f1;">●</span> <strong>Data Transfer:</strong> $1,120 (7%)</div>
-              <div><span style="color: #94a3b8;">●</span> <strong>Others:</strong> $917 (3%)</div>
+              <div><span style="color: #38bdf8;">●</span> <strong>Snowflake Target:</strong> 660 rows (66%)</div>
+              <div><span style="color: #10b981;">●</span> <strong>MySQL Source:</strong> 300 rows (30%)</div>
+              <div><span style="color: #a855f7;">●</span> <strong>eCommerce Target:</strong> 30 rows (3%)</div>
+              <div><span style="color: #6366f1;">●</span> <strong>dbt Cloud Staging:</strong> 10 rows (1%)</div>
             </div>
           </div>
         </div>
 
         <div class="panel-card">
-          <div class="panel-head"><div class="panel-title">📈 Infrastructure Usage &amp; Cost Over Time</div></div>
+          <div class="panel-head"><div class="panel-title">📈 ETL Ingestion Volume Over Time (Rows / Hour)</div></div>
           <div class="chart-container-compact" style="height: 180px;"><canvas id="chartCostOverTime"></canvas></div>
         </div>
       </div>
@@ -1549,10 +1548,10 @@
     window.metricDonutChart = new Chart(ctxDonut, {
       type: 'doughnut',
       data: {
-        labels: ['Snowflake', 'AWS EC2', 'S3 Storage', 'Data Transfer', 'Others'],
+        labels: ['Snowflake Target', 'MySQL Source', 'eCommerce Target', 'dbt Cloud Staging'],
         datasets: [{
-          data: [52, 23, 15, 7, 3],
-          backgroundColor: ['#38bdf8', '#a855f7', '#10b981', '#6366f1', '#94a3b8'],
+          data: [660, 300, 30, 10],
+          backgroundColor: ['#38bdf8', '#10b981', '#a855f7', '#6366f1'],
           borderWidth: 0
         }]
       },
@@ -1565,7 +1564,7 @@
       data: {
         labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
         datasets: [
-          { label: 'Infrastructure Usage', data: [1200, 1450, 1100, 1600, 1300, 1520], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, fill: true, backgroundColor: 'rgba(56,189,248,0.08)', pointRadius: 0 }
+          { label: 'ETL Rows Loaded', data: [150, 300, 210, 660, 450, 1000], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, fill: true, backgroundColor: 'rgba(56,189,248,0.08)', pointRadius: 0 }
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
