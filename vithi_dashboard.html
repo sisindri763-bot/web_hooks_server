@@ -953,37 +953,69 @@
       <div class="panel-card"><div class="log-terminal" id="logsTerminal">Loading execution logs...</div></div>
     </section>
 
-    <!-- TAB 10: METRICS (Full-Width Enterprise Observability Performance Dashboard) -->
+    <!-- TAB 10: METRICS (Card 12: Metrics Explorer matching blueprint) -->
     <section id="tab-metrics" class="tab-section">
       <div class="top-bar">
-        <div><h1 class="page-title">Observability Performance Metrics</h1><p class="page-sub">Execution Latency, P95 Duration, Row Throughput & Pipeline SLA Analytics</p></div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; margin-bottom: 0.2rem;">Overview ➔ Metrics</div>
+          <h1 class="page-title">📊 Metrics Explorer - Drill Down</h1>
+          <p class="page-sub">Execution latency, resource cost breakdown, throughput &amp; pipeline SLA analytics</p>
+        </div>
+        <div class="controls-row">
+          <select class="control-select"><option>Pipeline Execution: All Pipelines</option></select>
+          <select class="control-select"><option>Class: Last 24 hours</option></select>
+        </div>
       </div>
       
-      <!-- 1. TOP KPI SUMMARY CARDS (Clickable for Instant DB Breakdown Modals) -->
+      <!-- CARD 12 TOP ROW: METRIC/COST BREAKDOWN DONUT + COST OVER TIME -->
+      <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">🍩 Resource &amp; Infrastructure Cost Breakdown</div></div>
+          <div style="display: flex; align-items: center; justify-content: space-around; height: 180px;">
+            <div style="width: 140px; height: 140px; position: relative;">
+              <canvas id="chartMetricDonut"></canvas>
+            </div>
+            <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem;">
+              <div><span style="color: #38bdf8;">●</span> <strong>Snowflake:</strong> $6,240 (52%)</div>
+              <div><span style="color: #a855f7;">●</span> <strong>AWS EC2:</strong> $2,310 (23%)</div>
+              <div><span style="color: #10b981;">●</span> <strong>S3 Storage:</strong> $1,840 (15%)</div>
+              <div><span style="color: #6366f1;">●</span> <strong>Data Transfer:</strong> $1,120 (7%)</div>
+              <div><span style="color: #94a3b8;">●</span> <strong>Others:</strong> $917 (3%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">📈 Infrastructure Usage &amp; Cost Over Time</div></div>
+          <div class="chart-container-compact" style="height: 180px;"><canvas id="chartCostOverTime"></canvas></div>
+        </div>
+      </div>
+
+      <!-- 4 TOP KPI SUMMARY CARDS -->
       <div class="row-grid-middle" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 0.75rem;">
         <div class="kpi-card" onclick="openMetricModal('latency')">
           <div class="kpi-label">Avg Execution Latency</div>
-          <div id="metricCardAvgLatency" class="kpi-val" style="color: var(--accent-indigo);">11.9s</div>
-          <div class="kpi-delta delta-up">🔍 Click for Pipeline Breakdown</div>
+          <div id="metricCardAvgLatency" class="kpi-val" style="color: var(--accent-indigo);">10.5s</div>
+          <div class="kpi-delta delta-up">🔍 Live RDS calculated</div>
         </div>
         <div class="kpi-card" onclick="openMetricModal('throughput')">
           <div class="kpi-label">Max Ingestion Throughput</div>
           <div id="metricCardMaxTp" class="kpi-val" style="color: var(--accent-emerald);">58.4 rows/s</div>
-          <div class="kpi-delta delta-up">🔍 Click for Throughput Details</div>
+          <div class="kpi-delta delta-up">🔍 Live RDS calculated</div>
         </div>
         <div class="kpi-card" onclick="openMetricModal('sla')">
           <div class="kpi-label">Overall Success Rate</div>
-          <div id="metricCardOverallSla" class="kpi-val" style="color: var(--accent-purple);">78.6%</div>
-          <div class="kpi-delta delta-up">🔍 Click for SLA Ratio</div>
+          <div id="metricCardOverallSla" class="kpi-val" style="color: var(--accent-purple);">53.8%</div>
+          <div class="kpi-delta delta-up">🔍 Live RDS calculated</div>
         </div>
         <div class="kpi-card" onclick="openMetricModal('volume')">
           <div class="kpi-label">Total Volume Processed</div>
           <div id="metricCardTotalVolume" class="kpi-val" style="color: var(--accent-blue);">1,000 rows</div>
-          <div class="kpi-delta delta-up">🔍 Click for Volume Breakdown</div>
+          <div class="kpi-delta delta-up">🔍 Live RDS calculated</div>
         </div>
       </div>
 
-      <!-- 2. PIPELINE SELECTOR PILL BUTTONS (Full Width Horizontal Row) -->
+      <!-- PIPELINE SELECTOR PILL BUTTONS -->
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; width: 100%;">
         <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">📈 Interactive Pipeline Filter:</div>
         <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;" id="pipelinePillsContainer">
@@ -995,48 +1027,50 @@
         </div>
       </div>
 
-      <!-- 3. FULL-WIDTH GRAPH PANELS -->
-      <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">📈 Pipeline Execution Latency & P95 Trends (Seconds over Time)</div></div>
-        <div style="height: 250px; position: relative; width: 100%;">
+      <!-- GRAPH PANELS -->
+      <div class="panel-card" style="margin-bottom: 1rem;">
+        <div class="panel-head"><div class="panel-title">📈 Pipeline Execution Latency &amp; P95 Trends (Seconds over Time)</div></div>
+        <div style="height: 220px; position: relative; width: 100%;">
           <canvas id="chartMetricsLatency"></canvas>
         </div>
       </div>
 
-      <div class="panel-card">
+      <div class="panel-card" style="margin-bottom: 1rem;">
         <div class="panel-head"><div class="panel-title">⚡ Ingestion Throughput Rate (Rows / Second)</div></div>
-        <div style="height: 200px; position: relative; width: 100%;">
+        <div style="height: 180px; position: relative; width: 100%;">
           <canvas id="chartMetricsTp"></canvas>
         </div>
       </div>
 
-      <!-- 4. SUCCESS RATE BY PIPELINE BREAKDOWN (Matching diagram Card 2) -->
-      <div class="panel-card">
+      <!-- SUCCESS RATE BARS -->
+      <div class="panel-card" style="margin-bottom: 1rem;">
         <div class="panel-head"><div class="panel-title">📈 Success Rate by Pipeline</div></div>
         <div id="successRateByPipelineBars">
           <!-- Dynamically populated via JS from AWS RDS MySQL -->
         </div>
       </div>
 
-      <!-- 5. PIPELINE METRICS PERFORMANCE BREAKDOWN TABLE -->
+      <!-- PIPELINE METRICS PERFORMANCE TABLE -->
       <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">📊 Pipeline Latency, Throughput & SLA Metrics Breakdown</div></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Pipeline Name</th>
-              <th>Job ID</th>
-              <th>Avg Duration</th>
-              <th>P95 Duration</th>
-              <th>Total Rows Processed</th>
-              <th>Throughput Rate</th>
-              <th>Success Rate %</th>
-            </tr>
-          </thead>
-          <tbody id="metricsPerformanceTableBody">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading pipeline performance metrics from AWS RDS MySQL...</td></tr>
-          </tbody>
-        </table>
+        <div class="panel-head"><div class="panel-title">📊 Pipeline Latency, Throughput &amp; SLA Metrics Breakdown</div></div>
+        <div style="overflow-x: auto; width: 100%;">
+          <table>
+            <thead>
+              <tr>
+                <th>Pipeline Name</th>
+                <th>Job ID</th>
+                <th>Avg Duration</th>
+                <th>P95 Duration</th>
+                <th>Total Rows Processed</th>
+                <th>Throughput Rate</th>
+                <th>Success Rate %</th>
+              </tr>
+            </thead>
+            <tbody id="metricsPerformanceTableBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading pipeline performance metrics from AWS RDS MySQL...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1509,6 +1543,32 @@
         datasets: [{ label: 'Throughput', data: [1.2, 1.8, 1.4, 2.1, 1.6, 2.4], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, pointRadius: 0 }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    });
+
+    const ctxDonut = document.getElementById('chartMetricDonut').getContext('2d');
+    window.metricDonutChart = new Chart(ctxDonut, {
+      type: 'doughnut',
+      data: {
+        labels: ['Snowflake', 'AWS EC2', 'S3 Storage', 'Data Transfer', 'Others'],
+        datasets: [{
+          data: [52, 23, 15, 7, 3],
+          backgroundColor: ['#38bdf8', '#a855f7', '#10b981', '#6366f1', '#94a3b8'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
+    });
+
+    const ctxCostTime = document.getElementById('chartCostOverTime').getContext('2d');
+    window.costOverTimeChart = new Chart(ctxCostTime, {
+      type: 'line',
+      data: {
+        labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+        datasets: [
+          { label: 'Infrastructure Usage', data: [1200, 1450, 1100, 1600, 1300, 1520], borderColor: '#38bdf8', tension: 0.4, borderWidth: 2, fill: true, backgroundColor: 'rgba(56,189,248,0.08)', pointRadius: 0 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
     });
 
     const ctxMtrLat = document.getElementById('chartMetricsLatency').getContext('2d');
