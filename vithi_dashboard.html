@@ -545,27 +545,27 @@
         </div>
       </div>
 
-      <!-- 4 TOP STAT CARDS MATCHING DIAGRAM CARD 1 -->
+      <!-- 4 TOP STAT CARDS - Populated from RDS MySQL -->
       <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
         <div class="kpi-card">
           <div class="kpi-header"><span class="kpi-label">Total Pipelines</span><span>⚡</span></div>
-          <div id="drillTotalPipelines" class="kpi-val">247</div>
-          <div class="kpi-delta delta-up">▲ 12 vs yesterday</div>
+          <div id="drillTotalPipelines" class="kpi-val">—</div>
+          <div id="drillTotalPipelinesDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-header"><span class="kpi-label">Active</span><span>🟢</span></div>
-          <div id="drillActivePipelines" class="kpi-val">32</div>
-          <div class="kpi-delta delta-up">▲ 4 vs yesterday</div>
+          <div id="drillActivePipelines" class="kpi-val">—</div>
+          <div id="drillActiveDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Paused</span><span>⏸️</span></div>
-          <div class="kpi-val">12</div>
-          <div class="kpi-delta delta-down">▼ 1 vs yesterday</div>
+          <div class="kpi-header"><span class="kpi-label">Failed</span><span>🔴</span></div>
+          <div id="drillFailedPipelines" class="kpi-val">—</div>
+          <div id="drillFailedDelta" class="kpi-delta delta-down">Loading...</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Disabled</span><span>🚫</span></div>
-          <div class="kpi-val">3</div>
-          <div class="kpi-delta delta-down">0 vs yesterday</div>
+          <div class="kpi-header"><span class="kpi-label">Total Runs</span><span>📊</span></div>
+          <div id="drillTotalRuns" class="kpi-val">—</div>
+          <div id="drillRunsDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
       </div>
 
@@ -721,27 +721,27 @@
         </div>
       </div>
       
-      <!-- 4 TOP STAT CARDS MATCHING DIAGRAM CARD 5 -->
+      <!-- 4 TOP STAT CARDS - From real RDS MySQL data -->
       <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.25rem;">
         <div class="kpi-card">
           <div class="kpi-header"><span class="kpi-label">Overall Freshness</span><span>🟢</span></div>
-          <div class="kpi-val" style="color: var(--accent-emerald);" id="obsScoreFreshness">91.3%</div>
-          <div class="kpi-delta delta-up">▲ 1.8% vs yesterday</div>
+          <div class="kpi-val" style="color: var(--accent-emerald);" id="obsScoreFreshness">—</div>
+          <div id="obsFreshnessDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-header"><span class="kpi-label">Fresh Datasets</span><span>✅</span></div>
-          <div class="kpi-val" style="color: var(--accent-emerald);">1,228</div>
-          <div class="kpi-delta delta-up">▲ 24 vs yesterday</div>
+          <div id="obsFreshDatasets" class="kpi-val" style="color: var(--accent-emerald);">—</div>
+          <div id="obsFreshDatasetsDelta" class="kpi-delta delta-up">Loading...</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-header"><span class="kpi-label">Stale Datasets</span><span>⚠️</span></div>
-          <div class="kpi-val" style="color: #fde047;">114</div>
-          <div class="kpi-delta delta-down">▼ 5 vs yesterday</div>
+          <div id="obsStaleDatasets" class="kpi-val" style="color: #fde047;">—</div>
+          <div id="obsStaleDelta" class="kpi-delta delta-down">Loading...</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Critical Datasets</span><span>🚨</span></div>
-          <div class="kpi-val" style="color: var(--accent-rose);">28</div>
-          <div class="kpi-delta delta-down">▼ 2 vs yesterday</div>
+          <div class="kpi-header"><span class="kpi-label">Total Datasets</span><span>🗄️</span></div>
+          <div id="obsTotalDatasets" class="kpi-val" style="color: var(--accent-rose);">—</div>
+          <div id="obsTotalDelta" class="kpi-delta delta-down">Loading...</div>
         </div>
       </div>
 
@@ -1659,10 +1659,40 @@
           } else if (sysHealth) {
             sysHealth.innerHTML = '<div style="font-size: 0.78rem; color: var(--text-muted);">No system data available.</div>';
           }
+          // ── Pipelines Drill-Down KPI cards (populated from same RDS data) ────
+          const totalPipelines = data.pipelines_count ?? 0;
+          const activePipelines = data.pipelines_count ?? 0;
+          const failedPipelines = data.failed_pipelines ?? 0;
+          const totalRuns = parseInt((data.success_rate_delta || '0').replace(/[^0-9/]/g, '').split('/')[1]) || 0;
+          const successRuns = parseInt((data.success_rate_delta || '0').replace(/[^0-9/]/g, '').split('/')[0]) || 0;
+
+          setEl('drillTotalPipelines', totalPipelines);
+          setEl('drillTotalPipelinesDelta', data.pipelines_delta || `${totalPipelines} unique pipelines`);
+          setEl('drillActivePipelines', successRuns > 0 ? successRuns : activePipelines);
+          setEl('drillActiveDelta', `${successRuns} successful runs`);
+          setEl('drillFailedPipelines', failedPipelines);
+          setEl('drillFailedDelta', data.failed_delta || `${failedPipelines} failed runs`);
+          setEl('drillTotalRuns', totalRuns || (successRuns + failedPipelines));
+          setEl('drillRunsDelta', `${successRuns + failedPipelines} total recorded`);
+
+          // ── Observability Drill-Down KPI cards (from real freshness data) ──────
+          const freshnessScore = (data.observability_scores || {}).freshness;
+          const totalDatasets = data.datasets_count ?? 0;
+          const freshDatasetsCount = data.freshness_top_datasets ? data.freshness_top_datasets.length : 0;
+          const staleDatasetsCount = Math.max(0, totalDatasets - freshDatasetsCount);
+
+          setEl('obsScoreFreshness', freshnessScore != null ? freshnessScore + '%' : '—');
+          setEl('obsFreshnessDelta', data.freshness_delta || 'live');
+          setEl('obsFreshDatasets', freshDatasetsCount);
+          setEl('obsFreshDatasetsDelta', `${freshDatasetsCount} datasets tracked`);
+          setEl('obsStaleDatasets', staleDatasetsCount);
+          setEl('obsStaleDelta', `${staleDatasetsCount} not recently updated`);
+          setEl('obsTotalDatasets', totalDatasets);
+          setEl('obsTotalDelta', 'live count from RDS');
         }
 
-
         const resTable = await fetch('/api/dashboard/recent-runs');
+
         if (resTable.ok) {
           const data = await resTable.json();
           const tbody = document.getElementById('vithiTableBody');
