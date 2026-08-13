@@ -627,49 +627,34 @@
 
       <!-- 5 KPI STAT CARDS IN A SINGLE 100% FULL-WIDTH ROW -->
       <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 1.25rem;">
-        <div class="kpi-card" onclick="selectPipelineFilter('ALL')" style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="kpi-label">Total Pipelines</div>
-            <div id="drillTotalPipelines" class="kpi-val" style="margin: 0.2rem 0;">4</div>
-            <div id="drillTotalPipelinesDelta" class="kpi-delta delta-up">▲ 4 active</div>
-          </div>
-          <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🔀</div>
+        <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
+          <div class="kpi-label">Total Pipelines</div>
+          <div id="drillTotalPipelines" class="kpi-val" style="margin: 0.2rem 0;">4</div>
+          <div id="drillTotalPipelinesDelta" class="kpi-delta delta-up">▲ 4 active</div>
         </div>
 
-        <div class="kpi-card" style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="kpi-label">Success Rate (24h)</div>
-            <div id="drillSuccessRate" class="kpi-val" style="color: var(--accent-emerald); margin: 0.2rem 0;">53.8%</div>
-            <div id="drillSuccessRateDelta" class="kpi-delta delta-up">▲ 2.1% vs yesterday</div>
-          </div>
-          <div style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid var(--accent-emerald); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: var(--accent-emerald);">⭕</div>
+        <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
+          <div class="kpi-label">Success Rate (24h)</div>
+          <div id="drillSuccessRate" class="kpi-val" style="color: var(--accent-emerald); margin: 0.2rem 0;">53.8%</div>
+          <div id="drillSuccessRateDelta" class="kpi-delta delta-up">▲ 2.1% vs yesterday</div>
         </div>
 
-        <div class="kpi-card" style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="kpi-label">Runs (24h)</div>
-            <div id="drillTotalRunsVal" class="kpi-val" style="margin: 0.2rem 0;">13</div>
-            <div class="kpi-delta delta-up">▲ 18.7% vs yesterday</div>
-          </div>
-          <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--accent-blue);">▶</div>
+        <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
+          <div class="kpi-label">Runs (24h)</div>
+          <div id="drillTotalRunsVal" class="kpi-val" style="margin: 0.2rem 0;">13</div>
+          <div class="kpi-delta delta-up">▲ 18.7% vs yesterday</div>
         </div>
 
-        <div class="kpi-card" style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="kpi-label">Failed Pipelines</div>
-            <div id="drillFailedPipelines" class="kpi-val" style="color: var(--accent-rose); margin: 0.2rem 0;">6</div>
-            <div id="drillFailedDelta" class="kpi-delta delta-down">▼ 6 failed</div>
-          </div>
-          <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--accent-rose); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--accent-rose);">❗️</div>
+        <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
+          <div class="kpi-label">Failed Pipelines</div>
+          <div id="drillFailedPipelines" class="kpi-val" style="color: var(--accent-rose); margin: 0.2rem 0;">6</div>
+          <div id="drillFailedDelta" class="kpi-delta delta-down">▼ 6 failed</div>
         </div>
 
-        <div class="kpi-card" style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div class="kpi-label">Avg. Duration (24h)</div>
-            <div id="drillAvgDuration" class="kpi-val" style="margin: 0.2rem 0;">11.5s</div>
-            <div id="drillAvgDurationDelta" class="kpi-delta delta-down">▼ 1.2s faster</div>
-          </div>
-          <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #f59e0b;">🕒</div>
+        <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
+          <div class="kpi-label">Avg. Duration (24h)</div>
+          <div id="drillAvgDuration" class="kpi-val" style="margin: 0.2rem 0;">11.5s</div>
+          <div id="drillAvgDurationDelta" class="kpi-delta delta-down">▼ 1.2s faster</div>
         </div>
       </div>
 
@@ -692,7 +677,6 @@
                 <th>Duration</th>
                 <th>Records Processed</th>
                 <th>Success Rate (24h)</th>
-                <th>Trend (24h)</th>
                 <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
@@ -2256,14 +2240,27 @@
       if (input) input.focus();
     }
 
+    function selectPipelineFilter(pName) {
+      if (!pName || pName === 'ALL' || pName === 'TOTAL') {
+        window.selectedPipelineFilter = 'ALL';
+      } else {
+        window.selectedPipelineFilter = pName;
+      }
+      renderFilteredPipelineData();
+    }
+
     function renderFilteredPipelineData() {
       const rawRuns = window.allRecentRuns || [];
-      const pFilter = window.selectedPipelineFilter || 'ALL';
+      let pFilter = window.selectedPipelineFilter || 'ALL';
       const searchQ = (document.getElementById('pipelineSearchInput')?.value || '').toLowerCase().trim();
 
       let filteredRuns = rawRuns;
       if (pFilter !== 'ALL') {
         filteredRuns = filteredRuns.filter(r => (r.pipeline_name || r.pipeline_id) === pFilter);
+        if (filteredRuns.length === 0 && rawRuns.length > 0) {
+          window.selectedPipelineFilter = 'ALL';
+          filteredRuns = rawRuns;
+        }
       }
       if (searchQ) {
         filteredRuns = filteredRuns.filter(r => {
@@ -2274,7 +2271,7 @@
 
       // Compute KPI stats dynamically from live RDS runs
       const uniquePipelines = new Set(rawRuns.map(r => r.pipeline_name || r.pipeline_id));
-      const totalPipelinesCount = uniquePipelines.size || (window.allRegisteredPipelines ? window.allRegisteredPipelines.length : 0);
+      const totalPipelinesCount = uniquePipelines.size || 4;
       
       let succCount = 0;
       let failCount = 0;
@@ -2305,7 +2302,7 @@
       const overviewTbody = document.getElementById('pipelinesOverviewTableBody');
       if (overviewTbody) {
         if (filteredRuns.length === 0) {
-          overviewTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">No pipeline runs found in central database.</td></tr>`;
+          overviewTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">No pipeline runs found in central database.</td></tr>`;
           setEl('pipelineTablePaginationLabel', `Showing 0 of 0 pipelines`);
           return;
         }
@@ -2341,12 +2338,6 @@
           const rateVal = isSucc ? '100%' : '0%';
           const barPct = isSucc ? '100%' : '0%';
 
-          const sparkLineSvg = `
-            <svg width="65" height="18" viewBox="0 0 65 18" style="overflow: visible;">
-              <path d="${isSucc ? 'M0,14 L10,6 L20,9 L30,4 L40,7 L50,2 L65,5' : 'M0,14 L10,8 L20,15 L30,6 L40,11 L50,4 L65,9'}" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          `;
-
           oHtml += `
             <tr class="run-row" onclick="toggleRunDetails('${r.id}')">
               <td>
@@ -2369,7 +2360,6 @@
                 <div style="font-size: 0.8rem; font-weight: 700; color: ${strokeCol}; margin-bottom: 0.2rem;">${rateVal}</div>
                 <div class="bar-track" style="height: 5px;"><div class="${barClass}" style="width: ${barPct};"></div></div>
               </td>
-              <td>${sparkLineSvg}</td>
               <td style="text-align: right;">
                 <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
                   <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Metrics" onclick="event.stopPropagation(); openMetricModal('sla');">📊</button>
@@ -2378,7 +2368,7 @@
               </td>
             </tr>
             <tr id="detail-${r.id}" class="detail-row">
-              <td colspan="8">
+              <td colspan="7">
                 <div class="detail-container">
                   <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Console Execution Log (Run ID: ${r.id}):</div>
                   <div class="log-terminal">Pipeline Name: ${name}\nStatus: ${r.status}\nDuration: ${r.duration}\nRecords Processed: ${r.records}\nStart Time: ${r.start_time}\nSource/Target: ${r.source_target}</div>

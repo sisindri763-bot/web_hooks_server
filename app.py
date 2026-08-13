@@ -469,7 +469,7 @@ def api_dashboard_summary():
 
 @app.route("/api/dashboard/recent-runs", methods=["GET"])
 def api_dashboard_recent_runs():
-    table = get_dashboard_recent_table(limit=15)
+    table = get_dashboard_recent_table(limit=100)
     return jsonify({"runs": table}), 200
 
 
