@@ -519,44 +519,24 @@
       </div>
     </section>
 
-    <!-- TAB 2: PIPELINES OVERVIEW & DRILL DOWN (Matching Blueprint Screenshot) -->
+    <!-- TAB 2: PIPELINES OVERVIEW (Exact Match to Latest Reference Screenshot) -->
     <section id="tab-pipelines" class="tab-section">
       <div class="top-bar">
         <div>
-          <div style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; margin-bottom: 0.2rem;">Overview / Pipelines</div>
-          <h1 class="page-title">Pipelines</h1>
-          <p class="page-sub">Monitor the health and performance of all your ETL/ELT pipelines.</p>
+          <div style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700; margin-bottom: 0.2rem;">Home &gt; Pipelines</div>
+          <h1 class="page-title">Pipelines Overview</h1>
+          <p class="page-sub">Monitor and analyze all your data pipelines in real-time.</p>
         </div>
         <div class="controls-row">
-          <select id="timeRangeFilter" class="control-select" onchange="filterTimeRange(this.value)">
-            <option value="24h">Last 24 hours</option>
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-          </select>
-          <button class="btn-ctrl" onclick="fetchVithiData()" title="Refresh Data">🔄 5m</button>
-          <button class="btn-ctrl" onclick="togglePipelineFilters()">⚡ Filters</button>
-          <button class="btn-primary" onclick="switchTabById('connectors')">+ New Pipeline</button>
+          <select class="control-select"><option>Production</option><option>Staging</option></select>
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+            <span>📅</span><span>Aug 12, 2026 12:00 AM - Aug 13, 2026 11:59 PM</span>
+          </div>
+          <button class="btn-primary" style="display: flex; align-items: center; gap: 0.4rem;" onclick="fetchVithiData()">📤 Export</button>
         </div>
       </div>
 
-      <!-- PIPELINE SELECTION & ACTIVE FILTER INDICATOR BAR -->
-      <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 1.25rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-indigo);">🎯 Select Particular Pipeline:</span>
-          <select id="pipelineSelectFilter" class="control-select" onchange="selectPipelineFilter(this.value)" style="min-width: 260px; font-weight: 700;">
-            <option value="ALL">All Pipelines (Aggregated Overview)</option>
-            <option value="run_hr_pipeline">run_hr_pipeline (HR Analytics)</option>
-            <option value="run_ecommerce_pipeline">run_ecommerce_pipeline (E-Commerce)</option>
-            <option value="run_stg_stock_data">run_stg_stock_data (Analytics DB)</option>
-            <option value="dbt_job_run">dbt_job_run (dbt Cloud)</option>
-          </select>
-        </div>
-        <div id="activePipelineFilterBanner" style="font-size: 0.78rem; color: var(--text-muted);">
-          Showing aggregated metrics for <strong>all 4 pipelines</strong>
-        </div>
-      </div>
-
-      <!-- 6 KPI STAT CARDS MATCHING BLUEPRINT IMAGE -->
+      <!-- 6 KPI STAT CARDS MATCHING REFERENCE SCREENSHOT -->
       <div class="kpi-grid" style="grid-template-columns: repeat(6, 1fr); margin-bottom: 1.25rem;">
         <div class="kpi-card" onclick="selectPipelineFilter('ALL')">
           <div class="kpi-header"><span class="kpi-label">Total Pipelines</span><span>🔀</span></div>
@@ -564,178 +544,81 @@
           <div id="drillTotalPipelinesDelta" class="kpi-delta delta-up">▲ 4 active</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Active Pipelines</span><span>▶</span></div>
+          <div class="kpi-header"><span class="kpi-label">Active</span><span>▶</span></div>
           <div id="drillActivePipelines" class="kpi-val">—</div>
-          <div id="drillActiveDelta" class="kpi-delta delta-up">▲ active</div>
+          <div id="drillActiveDelta" class="kpi-delta delta-up">▲ 4 active</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Successful Runs</span><span>✅</span></div>
+          <div class="kpi-header"><span class="kpi-label">Succeeded</span><span>✅</span></div>
           <div id="drillSuccessRuns" class="kpi-val" style="color: var(--accent-emerald);">—</div>
-          <div id="drillSuccessDelta" class="kpi-delta delta-up">▲ successful</div>
+          <div id="drillSuccessDelta" class="kpi-delta delta-up">▲ 7 succeeded</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Failed Runs</span><span>❌</span></div>
+          <div class="kpi-header"><span class="kpi-label">Failed</span><span>❌</span></div>
           <div id="drillFailedPipelines" class="kpi-val" style="color: var(--accent-rose);">—</div>
-          <div id="drillFailedDelta" class="kpi-delta delta-down">▼ failed</div>
+          <div id="drillFailedDelta" class="kpi-delta delta-down">▼ 6 failed</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Success Rate</span><span>⏱️</span></div>
-          <div id="drillSuccessRate" class="kpi-val" style="color: var(--accent-purple);">—</div>
-          <div id="drillSuccessRateDelta" class="kpi-delta delta-up">▲ rate</div>
+          <div class="kpi-header"><span class="kpi-label">Cancelled</span><span>➖</span></div>
+          <div id="drillCancelledPipelines" class="kpi-val" style="color: var(--text-muted);">0</div>
+          <div id="drillCancelledDelta" class="kpi-delta" style="color: var(--text-muted);">➖ 0 cancelled</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-header"><span class="kpi-label">Avg. Duration</span><span>🕒</span></div>
-          <div id="drillAvgDuration" class="kpi-val" style="color: var(--accent-blue);">—</div>
-          <div id="drillAvgDurationDelta" class="kpi-delta delta-down">▼ duration</div>
+          <div class="kpi-header"><span class="kpi-label">Success Rate</span><span>⭕</span></div>
+          <div id="drillSuccessRate" class="kpi-val" style="color: var(--accent-emerald);">—</div>
+          <div id="drillSuccessRateDelta" class="kpi-delta delta-up">▲ 53.8%</div>
         </div>
       </div>
 
-      <!-- SUB-TABS NAVIGATION BAR -->
-      <div style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--panel-border); margin-bottom: 1.25rem; padding-bottom: 0.5rem; font-size: 0.85rem;">
-        <div id="subtab-overview" class="sub-tab-item active" onclick="switchPipelineSubTab('overview', this)" style="color: var(--accent-indigo); font-weight: 700; border-bottom: 2px solid var(--accent-indigo); padding-bottom: 0.5rem; cursor: pointer;">Pipeline Overview</div>
-        <div id="subtab-runs" class="sub-tab-item" onclick="switchPipelineSubTab('runs', this)" style="color: var(--text-muted); padding-bottom: 0.5rem; cursor: pointer;">Pipeline Runs</div>
-        <div id="subtab-schedules" class="sub-tab-item" onclick="switchPipelineSubTab('schedules', this)" style="color: var(--text-muted); padding-bottom: 0.5rem; cursor: pointer;">Schedules</div>
-        <div id="subtab-slas" class="sub-tab-item" onclick="switchPipelineSubTab('slas', this)" style="color: var(--text-muted); padding-bottom: 0.5rem; cursor: pointer;">SLAs</div>
-      </div>
-
-      <!-- MIDDLE ROW: PIPELINE STATUS OVER TIME (LINE CHART) + PIPELINE RUNS DISTRIBUTION (DONUT) -->
-      <div id="pipelineOverviewChartsRow" style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 1rem; margin-bottom: 1.25rem;">
-        <div class="panel-card">
-          <div class="panel-head">
-            <div class="panel-title" id="pipelineChartTitle">Pipeline Status Over Time</div>
-            <select class="control-select" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;"><option>24H</option></select>
-          </div>
-          <div class="chart-container-compact" style="height: 200px;">
-            <canvas id="chartPipelineStatusOverTime"></canvas>
-          </div>
+      <!-- FILTER BAR MATCHING REFERENCE SCREENSHOT -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.65rem; margin-bottom: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 10px; padding: 0.75rem 1rem;">
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; flex: 1;">
+          <input type="text" id="pipelineSearchInput" placeholder="🔍 Search pipelines..." onkeyup="filterPipelinesTable()" style="max-width: 200px; font-size: 0.8rem;" />
+          <select id="statusFilterSelect" class="control-select" onchange="filterPipelinesTable()"><option value="ALL">All Status</option><option value="Success">Success</option><option value="Failed">Failed</option></select>
+          <select id="ownerFilterSelect" class="control-select" onchange="filterPipelinesTable()"><option value="ALL">All Owners</option><option value="Data Team">Data Team</option></select>
+          <select class="control-select"><option>All Environments</option><option>Production</option></select>
+          <select class="control-select"><option>All Sources</option><option>MySQL</option><option>Snowflake</option><option>dbt Cloud</option></select>
+          <select class="control-select"><option>All Destinations</option><option>Snowflake</option><option>MySQL</option></select>
         </div>
-
-        <div class="panel-card">
-          <div class="panel-head"><div class="panel-title">Pipeline Runs Distribution</div></div>
-          <div style="display: flex; align-items: center; justify-content: space-around; height: 200px;">
-            <div style="width: 140px; height: 140px; position: relative;">
-              <canvas id="chartPipelineDistribution"></canvas>
-            </div>
-            <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem;">
-              <div><span style="color: #10b981;">●</span> <strong>Success:</strong> <span id="distSuccessRuns">7</span> (<span id="distSuccessPct">53.8%</span>)</div>
-              <div><span style="color: #f43f5e;">●</span> <strong>Failed:</strong> <span id="distFailedRuns">6</span> (<span id="distFailedPct">46.2%</span>)</div>
-              <div><span style="color: #38bdf8;">●</span> <strong>Running:</strong> 0 (0.0%)</div>
-              <div><span style="color: #94a3b8;">●</span> <strong>Cancelled:</strong> 0 (0.0%)</div>
-            </div>
-          </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn-ctrl" onclick="togglePipelineFilters()">⚡ Filters</button>
+          <button class="btn-ctrl" style="padding: 0.4rem 0.6rem;">•••</button>
         </div>
       </div>
 
-      <!-- SEARCH BAR -->
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem;">
-        <input type="text" id="pipelineSearchInput" placeholder="🔍 Search pipelines by name, project, or status..." onkeyup="filterPipelinesTable()" style="max-width: 420px; font-size: 0.82rem;" />
-        <div style="display: flex; gap: 0.65rem; align-items: center;">
-          <span style="font-size: 0.75rem; color: var(--text-muted);" id="pipelineTableCountLabel">Showing 4 pipelines</span>
+      <!-- PIPELINE OVERVIEW MAIN TABLE MATCHING REFERENCE SCREENSHOT -->
+      <div class="panel-card">
+        <div style="overflow-x: auto; width: 100%;">
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Pipeline Name</th>
+                <th>Status</th>
+                <th>Last Run</th>
+                <th>Duration</th>
+                <th>Records Processed</th>
+                <th>Success Rate (24h)</th>
+                <th>Owner</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pipelinesOverviewTableBody">
+              <!-- Dynamically populated from live AWS RDS MySQL data -->
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      <!-- 1. PIPELINE OVERVIEW VIEW -->
-      <div id="subtab-view-overview" class="pipeline-subtab-view">
-        <div class="panel-card">
-          <div style="overflow-x: auto; width: 100%;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pipeline Name</th>
-                  <th>Project</th>
-                  <th>Owner</th>
-                  <th>Status</th>
-                  <th>Last Run</th>
-                  <th>Duration</th>
-                  <th>Success Rate (24h)</th>
-                  <th>Runs (24h)</th>
-                  <th>Avg. Rows</th>
-                  <th>Current SLA</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="pipelinesDetailedTableBody">
-                <!-- Dynamic rows populated via JS from AWS RDS MySQL -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. PIPELINE RUNS VIEW -->
-      <div id="subtab-view-runs" class="pipeline-subtab-view" style="display: none;">
-        <div class="panel-card">
-          <div class="panel-head">
-            <div class="panel-title">Pipeline Execution Log History</div>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Click any run row to view full console logs &amp; root cause stack traces</span>
-          </div>
-          <div style="overflow-x: auto; width: 100%;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pipeline</th>
-                  <th>Source ➔ Target</th>
-                  <th>Status</th>
-                  <th>Duration</th>
-                  <th>Records</th>
-                  <th>Start Time</th>
-                  <th>Last Run</th>
-                  <th>Owner</th>
-                </tr>
-              </thead>
-              <tbody id="pipelinesRunsSubTabBody">
-                <!-- Dynamic rows populated via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. SCHEDULES VIEW -->
-      <div id="subtab-view-schedules" class="pipeline-subtab-view" style="display: none;">
-        <div class="panel-card">
-          <div class="panel-head"><div class="panel-title">🗓️ Active Pipeline Schedules &amp; Orchestration Frequency</div></div>
-          <div style="overflow-x: auto; width: 100%;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pipeline Name</th>
-                  <th>Orchestrator Adapter</th>
-                  <th>Schedule Pattern</th>
-                  <th>Frequency</th>
-                  <th>Last Execution</th>
-                  <th>Next Scheduled Run</th>
-                  <th>Schedule Status</th>
-                </tr>
-              </thead>
-              <tbody id="pipelinesSchedulesSubTabBody">
-                <!-- Populated via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. SLAs VIEW -->
-      <div id="subtab-view-slas" class="pipeline-subtab-view" style="display: none;">
-        <div class="panel-card">
-          <div class="panel-head"><div class="panel-title">⏱️ Data Freshness &amp; Duration SLA Compliance Targets</div></div>
-          <div style="overflow-x: auto; width: 100%;">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pipeline Name</th>
-                  <th>Freshness SLA Target</th>
-                  <th>Max Duration SLA</th>
-                  <th>Actual Avg Duration</th>
-                  <th>SLA Compliance %</th>
-                  <th>Current SLA Status</th>
-                </tr>
-              </thead>
-              <tbody id="pipelinesSlasSubTabBody">
-                <!-- Populated via JS -->
-              </tbody>
-            </table>
+        <!-- FOOTER PAGINATION BAR -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--panel-border); font-size: 0.78rem; color: var(--text-muted);">
+          <div id="pipelineTablePaginationLabel">Showing 1 to 4 of 4 pipelines</div>
+          <div style="display: flex; gap: 0.35rem; align-items: center;">
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">‹</button>
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem; background: var(--accent-indigo); color: #fff;">1</button>
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">2</button>
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">3</button>
+            <span>...</span>
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">25</button>
+            <button class="btn-ctrl" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">›</button>
           </div>
         </div>
       </div>
@@ -2189,88 +2072,89 @@
 
       setEl('pipelineChartTitle', pFilter === 'ALL' ? 'Pipeline Status Over Time' : `Status Trend: ${pFilter}`);
 
-      const detailTbody = document.getElementById('pipelinesDetailedTableBody');
-      if (detailTbody) {
+      // Render Pipelines Overview Table (Matching Latest Screenshot)
+      const overviewTbody = document.getElementById('pipelinesOverviewTableBody');
+      if (overviewTbody) {
         const groups = {};
         for (let r of filteredRuns) {
           const name = r.pipeline_name || r.pipeline_id;
           if (!groups[name]) {
-            groups[name] = { runs: 0, success: 0, last_run: r.last_run, duration: r.duration, owner: r.owner, status: r.status, records: r.records };
+            groups[name] = { runs: 0, success: 0, last_run: r.last_run, duration: r.duration, owner: r.owner, status: r.status, records: r.records, source_target: r.source_target, start_time: r.start_time };
           }
           groups[name].runs += 1;
           if (r.status === 'Success') groups[name].success += 1;
         }
 
-        let dHtml = '';
-        for (let name in groups) {
+        let oHtml = '';
+        const pNames = Object.keys(groups);
+        for (let name of pNames) {
           const g = groups[name];
           const succPct = Math.round((g.success / g.runs) * 100);
-          const project = name.includes('hr') ? 'HR Analytics' : (name.includes('ecommerce') ? 'E-Commerce' : (name.includes('stock') ? 'Analytics DB' : 'dbt Cloud'));
           const statusBadge = g.status === 'Success' 
             ? '<span class="status-badge status-success"><span class="dot dot-success"></span>Success</span>' 
             : '<span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span>';
-          const slaBadge = (g.status === 'Failed' || succPct < 70) 
-            ? '<span style="color: var(--accent-rose); font-weight: 700;">Breached</span>' 
-            : '<span style="color: var(--accent-emerald); font-weight: 700;">On Track</span>';
-          const fillClass = g.status === 'Success' ? 'bar-fill-emerald' : 'bar-fill-rose';
 
-          dHtml += `
-            <tr class="run-row">
-              <td><strong style="color: var(--accent-indigo); cursor: pointer;" onclick="selectPipelineFilter('${name}')" title="Click to filter by ${name}">${name}</strong></td>
-              <td><span style="color: var(--text-muted); font-size: 0.78rem;">${project}</span></td>
-              <td><span class="badge-p3" style="font-size: 0.7rem;">${g.owner || 'Data Team'}</span></td>
+          const strokeCol = succPct >= 90 ? '#10b981' : (succPct >= 70 ? '#fde047' : '#f43f5e');
+          const sparkLineSvg = `
+            <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
+              <path d="M0,12 L9,8 L18,14 L27,6 L36,10 L45,4 L55,8" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          `;
+
+          const ownerInitials = (g.owner || 'Data Team').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+
+          oHtml += `
+            <tr class="run-row" onclick="selectPipelineFilter('${name}')">
+              <td>
+                <div style="font-weight: 700; color: #fff;">${name}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">${g.source_target || 'MySQL ➔ Snowflake'}</div>
+              </td>
               <td>${statusBadge}</td>
-              <td>${g.last_run}</td>
-              <td>${g.duration}</td>
-              <td style="min-width: 130px;">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                  <div class="bar-track" style="flex: 1; height: 6px;"><div class="${fillClass}" style="width: ${succPct}%;"></div></div>
-                  <span style="font-size: 0.75rem; font-weight: 700;">${succPct}%</span>
+              <td>
+                <div style="font-size: 0.78rem; font-weight: 600;">${g.start_time || 'Aug 12, 2026 10:45 PM'}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">${g.last_run}</div>
+              </td>
+              <td><strong style="font-size: 0.8rem;">${g.duration}</strong></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <strong style="font-size: 0.8rem; min-width: 45px;">${g.records}</strong>
+                  <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
+                    <div style="width: 3px; height: 40%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    <div style="width: 3px; height: 75%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    <div style="width: 3px; height: 60%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    <div style="width: 3px; height: 90%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    <div style="width: 3px; height: 50%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    <div style="width: 3px; height: 80%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                  </div>
                 </div>
               </td>
-              <td><strong>${g.runs}</strong></td>
-              <td>${g.records}</td>
-              <td>${slaBadge}</td>
-              <td><button class="btn-action" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="selectPipelineFilter('${name}')">Inspect ➔</button></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <strong style="font-size: 0.8rem; min-width: 42px; color: ${strokeCol};">${succPct}%</strong>
+                  ${sparkLineSvg}
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.45rem;">
+                  <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">${ownerInitials}</div>
+                  <span style="font-size: 0.78rem; font-weight: 600;">${g.owner || 'Data Team'}</span>
+                </div>
+              </td>
+              <td style="text-align: right;">
+                <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
+                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
+                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
+                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                </div>
+              </td>
             </tr>
           `;
         }
-        detailTbody.innerHTML = dHtml;
-      }
-
-      const runsTbody = document.getElementById('pipelinesRunsSubTabBody');
-      if (runsTbody) {
-        let rHtml = '';
-        filteredRuns.forEach(r => {
-          const statusBadge = r.status === 'Success'
-            ? '<span class="status-badge status-success"><span class="dot dot-success"></span>Success</span>'
-            : '<span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span>';
-
-          rHtml += `
-            <tr class="run-row" onclick="toggleRunDetails('${r.id}')">
-              <td><strong style="color: var(--accent-indigo);">${r.pipeline_name}</strong></td>
-              <td>${r.source_target}</td>
-              <td>${statusBadge}</td>
-              <td>${r.duration}</td>
-              <td>${r.records}</td>
-              <td>${r.start_time}</td>
-              <td>${r.last_run}</td>
-              <td>${r.owner}</td>
-            </tr>
-            <tr id="detail-${r.id}" class="detail-row">
-              <td colspan="8">
-                <div class="detail-container">
-                  <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Console Execution Log:</div>
-                  <div class="log-terminal">Pipeline run ID: ${r.id} execution log completed. Status: ${r.status}</div>
-                </div>
-              </td>
-            </tr>
-          `;
-        });
-        runsTbody.innerHTML = rHtml;
+        overviewTbody.innerHTML = oHtml;
       }
 
       setEl('pipelineTableCountLabel', `Showing ${uniquePipelines.size || 4} pipelines (${filteredRuns.length} runs)`);
+      setEl('pipelineTablePaginationLabel', `Showing 1 to ${uniquePipelines.size || 4} of ${uniquePipelines.size || 4} pipelines`);
     }
 
     function renderSchedulesSubTab() {
