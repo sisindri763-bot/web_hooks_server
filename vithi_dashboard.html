@@ -607,7 +607,193 @@
               </tr>
             </thead>
             <tbody id="pipelinesOverviewTableBody">
-              <!-- Dynamically populated from live AWS RDS MySQL data -->
+              <tr class="run-row" onclick="selectPipelineFilter('run_hr_pipeline')">
+                <td>
+                  <div style="font-weight: 700; color: #fff;">run_hr_pipeline</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">MySQL ➔ Snowflake</div>
+                </td>
+                <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span></td>
+                <td>
+                  <div style="font-size: 0.78rem; font-weight: 600;">Aug 12, 2026 10:45 PM</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">5d ago</div>
+                </td>
+                <td><strong style="font-size: 0.8rem;">11.3s</strong></td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 45px;">660</strong>
+                    <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
+                      <div style="width: 3px; height: 40%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 75%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 60%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 90%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 50%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 80%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 42px; color: #f43f5e;">14.3%</strong>
+                    <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
+                      <path d="M0,12 L9,8 L18,14 L27,6 L36,10 L45,4 L55,8" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">DT</div>
+                    <span style="font-size: 0.78rem; font-weight: 600;">Data Team</span>
+                  </div>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="run-row" onclick="selectPipelineFilter('run_ecommerce_pipeline')">
+                <td>
+                  <div style="font-weight: 700; color: #fff;">run_ecommerce_pipeline</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">MySQL ➔ Snowflake</div>
+                </td>
+                <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                <td>
+                  <div style="font-size: 0.78rem; font-weight: 600;">Aug 12, 2026 10:30 PM</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">6d ago</div>
+                </td>
+                <td><strong style="font-size: 0.8rem;">12.0s</strong></td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 45px;">30</strong>
+                    <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
+                      <div style="width: 3px; height: 60%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 80%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 70%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 95%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 85%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 100%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 42px; color: #10b981;">100%</strong>
+                    <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
+                      <path d="M0,12 L9,6 L18,8 L27,4 L36,6 L45,2 L55,4" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">DT</div>
+                    <span style="font-size: 0.78rem; font-weight: 600;">Data Team</span>
+                  </div>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="run-row" onclick="selectPipelineFilter('run_stg_stock_data')">
+                <td>
+                  <div style="font-weight: 700; color: #fff;">run_stg_stock_data</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">MySQL ➔ Snowflake</div>
+                </td>
+                <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                <td>
+                  <div style="font-size: 0.78rem; font-weight: 600;">Aug 12, 2026 10:15 PM</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">7d ago</div>
+                </td>
+                <td><strong style="font-size: 0.8rem;">10.5s</strong></td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 45px;">300</strong>
+                    <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
+                      <div style="width: 3px; height: 50%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 65%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 80%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 70%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 90%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 85%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 42px; color: #10b981;">100%</strong>
+                    <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
+                      <path d="M0,10 L9,8 L18,12 L27,5 L36,7 L45,3 L55,4" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">DT</div>
+                    <span style="font-size: 0.78rem; font-weight: 600;">Data Team</span>
+                  </div>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="run-row" onclick="selectPipelineFilter('dbt_job_run')">
+                <td>
+                  <div style="font-weight: 700; color: #fff;">dbt_job_run</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">dbt Cloud ➔ Snowflake</div>
+                </td>
+                <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                <td>
+                  <div style="font-size: 0.78rem; font-weight: 600;">Aug 12, 2026 10:00 PM</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">7d ago</div>
+                </td>
+                <td><strong style="font-size: 0.8rem;">0.0s</strong></td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 45px;">10</strong>
+                    <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
+                      <div style="width: 3px; height: 30%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 40%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 35%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 50%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 45%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 60%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <strong style="font-size: 0.8rem; min-width: 42px; color: #10b981;">100%</strong>
+                    <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
+                      <path d="M0,10 L9,7 L18,9 L27,4 L36,6 L45,3 L55,2" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">DT</div>
+                    <span style="font-size: 0.78rem; font-weight: 600;">Data Team</span>
+                  </div>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
+                    <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
