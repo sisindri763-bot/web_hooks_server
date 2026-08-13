@@ -987,14 +987,14 @@ def get_dashboard_recent_table(limit: int = 10) -> List[Dict[str, Any]]:
         last_run_str = _compute_age_str(saved_at)
 
         # Format records: show both src→tgt if both available
-        if tgt_rows > 0 and src_rows > 0 and tgt_rows != src_rows:
-            records_str = f"{src_rows:,} / {tgt_rows:,}"
+        if tgt_rows > 0 and src_rows > 0:
+            records_str = f"{src_rows:,} ➔ {tgt_rows:,} rows"
         elif tgt_rows > 0:
-            records_str = f"{tgt_rows:,}"
+            records_str = f"{tgt_rows:,} rows"
         elif src_rows > 0:
-            records_str = f"{src_rows:,}"
+            records_str = f"{src_rows:,} rows"
         else:
-            records_str = "0"
+            records_str = "0 rows"
 
         # Source/target display
         src_obj = src.get("object_name") or ""

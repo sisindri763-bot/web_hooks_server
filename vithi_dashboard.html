@@ -616,12 +616,7 @@
           <p class="page-sub">Monitor the health and performance of your data pipelines.</p>
         </div>
         <div class="controls-row">
-          <select class="control-select"><option>Production</option><option>Staging</option></select>
-          <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-            <span>May 11, 2024 12:00 AM - May 11, 2024 11:59 PM</span>
-            <span>📅</span>
-          </div>
-          <button class="btn-ctrl" onclick="fetchVithiData()" title="Refresh">🔄</button>
+          <button class="btn-ctrl" onclick="fetchVithiData()" title="Refresh">🔄 Refresh</button>
         </div>
       </div>
 
@@ -2241,11 +2236,7 @@
     }
 
     function selectPipelineFilter(pName) {
-      if (!pName || pName === 'ALL' || pName === 'TOTAL') {
-        window.selectedPipelineFilter = 'ALL';
-      } else {
-        window.selectedPipelineFilter = pName;
-      }
+      window.selectedPipelineFilter = 'ALL';
       renderFilteredPipelineData();
     }
 
