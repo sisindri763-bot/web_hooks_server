@@ -147,6 +147,10 @@
       background: var(--panel-bg); border: 1px solid var(--panel-border);
       color: var(--text-main); padding: 0.45rem 0.8rem; border-radius: 8px;
       font-size: 0.8rem; font-weight: 500; outline: none; cursor: pointer;
+      display: inline-block; width: auto; max-width: 150px; flex-shrink: 0;
+    }
+    .control-select option {
+      background: #0f172a; color: #f8fafc;
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
@@ -570,17 +574,17 @@
         </div>
       </div>
 
-      <!-- FILTER BAR MATCHING REFERENCE SCREENSHOT -->
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.65rem; margin-bottom: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 10px; padding: 0.75rem 1rem;">
-        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; flex: 1;">
-          <input type="text" id="pipelineSearchInput" placeholder="🔍 Search pipelines..." onkeyup="filterPipelinesTable()" style="max-width: 200px; font-size: 0.8rem;" />
+      <!-- FILTER BAR MATCHING REFERENCE SCREENSHOT (Single Horizontal Row) -->
+      <div style="display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 10px; padding: 0.65rem 0.85rem; overflow-x: auto;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: nowrap; flex: 1; min-width: 0;">
+          <input type="text" id="pipelineSearchInput" placeholder="🔍 Search pipelines..." onkeyup="filterPipelinesTable()" style="min-width: 150px; max-width: 200px; font-size: 0.78rem; padding: 0.4rem 0.65rem;" />
           <select id="statusFilterSelect" class="control-select" onchange="filterPipelinesTable()"><option value="ALL">All Status</option><option value="Success">Success</option><option value="Failed">Failed</option></select>
           <select id="ownerFilterSelect" class="control-select" onchange="filterPipelinesTable()"><option value="ALL">All Owners</option><option value="Data Team">Data Team</option></select>
           <select class="control-select"><option>All Environments</option><option>Production</option></select>
           <select class="control-select"><option>All Sources</option><option>MySQL</option><option>Snowflake</option><option>dbt Cloud</option></select>
           <select class="control-select"><option>All Destinations</option><option>Snowflake</option><option>MySQL</option></select>
         </div>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div style="display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0;">
           <button class="btn-ctrl" onclick="togglePipelineFilters()">⚡ Filters</button>
           <button class="btn-ctrl" style="padding: 0.4rem 0.6rem;">•••</button>
         </div>
