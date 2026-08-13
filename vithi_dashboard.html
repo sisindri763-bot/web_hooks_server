@@ -346,14 +346,6 @@
       <a class="nav-item" onclick="switchTab('reports', this)"><span class="nav-icon">📋</span> Reports</a>
       <a class="nav-item" onclick="switchTab('settings', this)"><span class="nav-icon">⚙️</span> Settings</a>
     </nav>
-
-    <div class="user-pill">
-      <div class="avatar">SA</div>
-      <div>
-        <div style="font-size: 0.82rem; font-weight: 700;">Sai</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">Data Team</div>
-      </div>
-    </div>
   </aside>
 
   <!-- MAIN CONTENT CONTAINER -->
@@ -3003,6 +2995,125 @@
       }
     }
 
+    function switchTab(tabName, el) {
+      document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      if (el) {
+        el.classList.add('active');
+      } else {
+        const targetNav = Array.from(document.querySelectorAll('.sidebar .nav-item')).find(item => {
+          return item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${tabName}'`);
+        });
+        if (targetNav) targetNav.classList.add('active');
+      }
+
+      document.querySelectorAll('main > section').forEach(sec => {
+        sec.style.display = 'none';
+        sec.classList.remove('active');
+      });
+
+      const targetSec = document.getElementById('tab-' + tabName) || document.getElementById(tabName);
+      if (targetSec) {
+        targetSec.style.display = 'block';
+        targetSec.classList.add('active');
+      }
+
+      if (tabName === 'overview') {
+        initOverviewCharts();
+      } else if (tabName === 'pipelines') {
+        initPipelineOverviewCharts();
+      }
+    }
+
+    function switchTabById(tabName) {
+      switchTab(tabName, null);
+    }
+
+    function initOverviewCharts() {
+      const ctxRuns = document.getElementById('chartRunsOverTime');
+      if (ctxRuns && !window.ovRunsChart) {
+        window.ovRunsChart = new Chart(ctxRuns, {
+          type: 'bar',
+          data: {
+            labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+            datasets: [
+              { label: 'Success', data: [95, 110, 105, 125, 100, 130], backgroundColor: '#10b981', borderRadius: 2 },
+              { label: 'Failed', data: [12, 14, 10, 18, 11, 8], backgroundColor: '#f43f5e', borderRadius: 2 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+              y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      const ctxDur = document.getElementById('chartDuration');
+      if (ctxDur && !window.ovDurChart) {
+        window.ovDurChart = new Chart(ctxDur, {
+          type: 'line',
+          data: {
+            labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+            datasets: [{
+              label: 'Avg Duration (s)',
+              data: [12.5, 17.2, 14.8, 21.4, 15.0, 18.2],
+              borderColor: '#a855f7',
+              borderWidth: 2,
+              backgroundColor: 'rgba(168, 85, 247, 0.15)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+              y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      const ctxTp = document.getElementById('chartThroughput');
+      if (ctxTp && !window.ovTpChart) {
+        window.ovTpChart = new Chart(ctxTp, {
+          type: 'line',
+          data: {
+            labels: ['12:00', '16:00', '20:00', '00:00', '04:00', '08:00'],
+            datasets: [{
+              label: 'Throughput (rows/s)',
+              data: [1.2, 1.7, 1.4, 2.0, 1.6, 2.4],
+              borderColor: '#38bdf8',
+              borderWidth: 2,
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+              y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+    }
+
     // Startup initialization
     document.addEventListener('DOMContentLoaded', () => {
       fetchVithiData();
@@ -3012,6 +3123,7 @@
       fetchIncidents();
       fetchMetricsDetails();
       fetchLineageData();
+      initOverviewCharts();
       initPipelineOverviewCharts();
     });
 
@@ -3024,6 +3136,7 @@
       fetchIncidents();
       fetchMetricsDetails();
       fetchLineageData();
+      initOverviewCharts();
       initPipelineOverviewCharts();
     } catch (e) {
       console.log('Error starting dashboard fetches:', e);
