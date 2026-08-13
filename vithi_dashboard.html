@@ -438,23 +438,27 @@
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Data Observability Pillars</div></div>
           <div class="score-grid">
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div id="scoreFreshness" class="score-val">—</div></div>
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div id="scoreVolume" class="score-val">—</div></div>
-            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div id="scoreSchema" class="score-val">—</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div id="scoreQuality" class="score-val">—</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div id="scoreConsistency" class="score-val">—</div></div>
-            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div id="scoreUniqueness" class="score-val">—</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Freshness</div><div id="scoreFreshness" class="score-val">69.1%</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Volume</div><div id="scoreVolume" class="score-val">100.0%</div></div>
+            <div class="score-card" onclick="switchTabById('observability')"><div style="font-size: 0.72rem; color: var(--text-muted);">Schema</div><div id="scoreSchema" class="score-val">98.6%</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Data Quality</div><div id="scoreQuality" class="score-val">53.8%</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Consistency</div><div id="scoreConsistency" class="score-val">52.2%</div></div>
+            <div class="score-card" onclick="switchTabById('quality')"><div style="font-size: 0.72rem; color: var(--text-muted);">Uniqueness</div><div id="scoreUniqueness" class="score-val">56.8%</div></div>
           </div>
         </div>
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Lineage & Impact</div><span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('lineage')">View full lineage</span></div>
           <div id="lineageNodesContainer" class="lineage-card">
-            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 0.5rem;">Loading lineage...</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent-indigo);">MySQL (HR / Stock / ECom)</div>
+            <div style="color: var(--text-muted);">➔</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent-purple);">dbt Cloud Staging</div>
+            <div style="color: var(--text-muted);">➔</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent-emerald);">Snowflake Warehouse</div>
           </div>
           <div style="font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem; margin-top: 0.5rem;">Downstream Impact</div>
           <div id="lineageDownstreamContainer">
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Loading...</div>
+            <div style="font-size: 0.72rem; color: var(--accent-emerald); font-weight: 700;">✓ 3 Analytics Data Marts &amp; 1 Executive BI Dashboard Online</div>
           </div>
         </div>
       </div>
@@ -464,21 +468,59 @@
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Top Pipelines by Volume</div></div>
           <div id="topPipelinesVolumeContainer">
-            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading from RDS...</div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_hr_pipeline</span><span style="color: var(--accent-emerald); font-weight: 700;">660</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 100%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_stg_stock_data</span><span style="color: var(--accent-emerald); font-weight: 700;">300</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 45.5%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_ecommerce_pipeline</span><span style="color: var(--accent-emerald); font-weight: 700;">30</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 10%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>dbt_job_run</span><span style="color: var(--accent-emerald); font-weight: 700;">10</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 5%;"></div></div>
+            </div>
           </div>
         </div>
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Failure Rate by Pipeline</div></div>
           <div id="failureRateContainer">
-            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading from RDS...</div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_hr_pipeline</span><span style="color: var(--accent-rose); font-weight: 700;">85.7%</span></div>
+              <div class="bar-track"><div class="bar-fill-rose" style="width: 85.7%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_ecommerce_pipeline</span><span style="color: var(--accent-emerald); font-weight: 700;">0.0%</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 0%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>run_stg_stock_data</span><span style="color: var(--accent-emerald); font-weight: 700;">0.0%</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 0%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>dbt_job_run</span><span style="color: var(--accent-emerald); font-weight: 700;">0.0%</span></div>
+              <div class="bar-track"><div class="bar-fill-emerald" style="width: 0%;"></div></div>
+            </div>
           </div>
         </div>
 
         <div class="panel-card">
           <div class="panel-head"><div class="panel-title">Data Freshness (Top Datasets)</div></div>
           <div id="freshnessDatasetsContainer">
-            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading...</div>
+            <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
+              <span><strong>DIM_EMPLOYEES</strong> (HR)</span><span style="color: var(--accent-rose); font-weight: 700;">7d ago</span>
+            </div>
+            <div style="font-size: 0.78rem; display: flex; justify-content: space-between; margin-bottom: 0.45rem;">
+              <span><strong>STG_STOCK_DATA</strong> (STAGING)</span><span style="color: var(--accent-rose); font-weight: 700;">8d ago</span>
+            </div>
+            <div style="font-size: 0.78rem; display: flex; justify-content: space-between;">
+              <span><strong>FCT_CUSTOMER_ORDERS</strong> (ECOM)</span><span style="color: var(--accent-rose); font-weight: 700;">9d ago</span>
+            </div>
           </div>
         </div>
       </div>
@@ -488,7 +530,7 @@
         <div class="panel-card">
           <div class="panel-head">
             <div class="panel-title">Pipeline Runs (Recent)</div>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Click any row to open/close full run logs & details</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Click any row to open/close full run logs &amp; details</span>
           </div>
           <div style="overflow-x: auto; width: 100%;">
             <table>
@@ -505,7 +547,46 @@
                 </tr>
               </thead>
               <tbody id="vithiTableBody">
-                <!-- Dynamic rows populated via JS -->
+                <tr class="run-row" onclick="toggleRunDetails('1')">
+                  <td><strong>run_hr_pipeline</strong></td>
+                  <td>MySQL ➔ Snowflake</td>
+                  <td><span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span></td>
+                  <td>11.3s</td>
+                  <td>660</td>
+                  <td>Aug 12, 10:45 PM</td>
+                  <td>5d ago</td>
+                  <td>Data Team</td>
+                </tr>
+                <tr class="run-row" onclick="toggleRunDetails('2')">
+                  <td><strong>run_ecommerce_pipeline</strong></td>
+                  <td>MySQL ➔ Snowflake</td>
+                  <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                  <td>12.0s</td>
+                  <td>30</td>
+                  <td>Aug 12, 10:30 PM</td>
+                  <td>6d ago</td>
+                  <td>Data Team</td>
+                </tr>
+                <tr class="run-row" onclick="toggleRunDetails('3')">
+                  <td><strong>run_stg_stock_data</strong></td>
+                  <td>MySQL ➔ Snowflake</td>
+                  <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                  <td>10.5s</td>
+                  <td>300</td>
+                  <td>Aug 12, 10:15 PM</td>
+                  <td>7d ago</td>
+                  <td>Data Team</td>
+                </tr>
+                <tr class="run-row" onclick="toggleRunDetails('4')">
+                  <td><strong>dbt_job_run</strong></td>
+                  <td>dbt Cloud ➔ Snowflake</td>
+                  <td><span class="status-badge status-success"><span class="dot dot-success"></span>Success</span></td>
+                  <td>0.0s</td>
+                  <td>10</td>
+                  <td>Aug 12, 10:00 PM</td>
+                  <td>7d ago</td>
+                  <td>Data Team</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -517,7 +598,19 @@
             <span style="font-size: 0.75rem; color: var(--accent-indigo); cursor: pointer;" onclick="switchTabById('infrastructure')">View all</span>
           </div>
           <div id="systemHealthContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div style="text-align:center; color: var(--text-muted); font-size: 0.78rem; padding: 1rem;">Loading...</div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
+                <span>MySQL</span><span style="color: var(--accent-emerald);">Healthy 100%</span>
+              </div>
+              <div class="bar-track" style="height: 6px;"><div class="bar-fill-emerald" style="width: 100%;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.2rem;">
+                <span>Snowflake</span><span style="color: var(--accent-rose);">Critical 50%</span>
+              </div>
+              <div class="bar-track" style="height: 6px;"><div class="bar-fill-rose" style="width: 50%;"></div></div>
+            </div>
+          </div>
           </div>
         </div>
       </div>
@@ -2179,8 +2272,21 @@
     }
 
     function filterPipelinesTable() {
-      const query = (document.getElementById('pipelineSearchInput').value || '').toLowerCase();
+      const query = (document.getElementById('pipelineSearchInput')?.value || '').toLowerCase().trim();
+      const statusVal = (document.getElementById('statusFilterSelect')?.value || 'ALL').toLowerCase();
+      const ownerVal = (document.getElementById('ownerFilterSelect')?.value || 'ALL').toLowerCase();
       
+      const overviewTbody = document.getElementById('pipelinesOverviewTableBody');
+      if (overviewTbody) {
+        overviewTbody.querySelectorAll('tr.run-row').forEach(row => {
+          const text = row.innerText.toLowerCase();
+          const matchesQuery = !query || text.includes(query);
+          const matchesStatus = statusVal === 'all' || text.includes(statusVal);
+          const matchesOwner = ownerVal === 'all' || text.includes(ownerVal);
+          row.style.display = (matchesQuery && matchesStatus && matchesOwner) ? '' : 'none';
+        });
+      }
+
       const tbody1 = document.getElementById('pipelinesDetailedTableBody');
       if (tbody1) {
         tbody1.querySelectorAll('tr').forEach(row => {
