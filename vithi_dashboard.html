@@ -2628,16 +2628,28 @@
     }
 
     // Startup initialization
-    renderToolFields();
-    renderSourceFields();
-    renderTargetFields();
-    fetchVithiData();
-    fetchPipelines();
-    fetchObservabilityDetails();
-    fetchQualityDetails();
-    fetchIncidents();
-    fetchMetricsDetails();
-    fetchLineageData();
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchVithiData();
+      fetchPipelines();
+      fetchObservabilityDetails();
+      fetchQualityDetails();
+      fetchIncidents();
+      fetchMetricsDetails();
+      fetchLineageData();
+    });
+
+    // Immediate execution fallback
+    try {
+      fetchVithiData();
+      fetchPipelines();
+      fetchObservabilityDetails();
+      fetchQualityDetails();
+      fetchIncidents();
+      fetchMetricsDetails();
+      fetchLineageData();
+    } catch (e) {
+      console.log('Error starting dashboard fetches:', e);
+    }
 
     // Auto-refresh every 5 minutes
     setInterval(() => {
