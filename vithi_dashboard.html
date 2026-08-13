@@ -2330,64 +2330,57 @@
 
         let oHtml = '';
         const pNames = Object.keys(groups);
+        const iconsMap = {
+          'run_hr_pipeline': '📊',
+          'run_ecommerce_pipeline': '🛒',
+          'run_stg_stock_data': '📈',
+          'dbt_job_run': '⚙️'
+        };
+
         for (let name of pNames) {
           const g = groups[name];
           const succPct = Math.round((g.success / g.runs) * 100);
+          const icon = iconsMap[name] || '⚡';
           const statusBadge = g.status === 'Success' 
             ? '<span class="status-badge status-success"><span class="dot dot-success"></span>Success</span>' 
             : '<span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span>';
 
           const strokeCol = succPct >= 90 ? '#10b981' : (succPct >= 70 ? '#fde047' : '#f43f5e');
+          const barClass = succPct >= 70 ? 'bar-fill-emerald' : 'bar-fill-rose';
+          
           const sparkLineSvg = `
-            <svg width="55" height="16" viewBox="0 0 55 16" style="overflow: visible;">
-              <path d="M0,12 L9,8 L18,14 L27,6 L36,10 L45,4 L55,8" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
+            <svg width="65" height="18" viewBox="0 0 65 18" style="overflow: visible;">
+              <path d="M0,14 L10,8 L20,15 L30,6 L40,11 L50,4 L65,9" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
             </svg>
           `;
-
-          const ownerInitials = (g.owner || 'Data Team').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
 
           oHtml += `
             <tr class="run-row" onclick="selectPipelineFilter('${name}')">
               <td>
-                <div style="font-weight: 700; color: #fff;">${name}</div>
-                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">${g.source_target || 'MySQL ➔ Snowflake'}</div>
-              </td>
-              <td>${statusBadge}</td>
-              <td>
-                <div style="font-size: 0.78rem; font-weight: 600;">${g.start_time || 'Aug 12, 2026 10:45 PM'}</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">${g.last_run}</div>
-              </td>
-              <td><strong style="font-size: 0.8rem;">${g.duration}</strong></td>
-              <td>
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                  <strong style="font-size: 0.8rem; min-width: 45px;">${g.records}</strong>
-                  <div style="display: flex; align-items: flex-end; gap: 2px; height: 16px; width: 36px;">
-                    <div style="width: 3px; height: 40%; background: var(--accent-indigo); border-radius: 1px;"></div>
-                    <div style="width: 3px; height: 75%; background: var(--accent-indigo); border-radius: 1px;"></div>
-                    <div style="width: 3px; height: 60%; background: var(--accent-indigo); border-radius: 1px;"></div>
-                    <div style="width: 3px; height: 90%; background: var(--accent-indigo); border-radius: 1px;"></div>
-                    <div style="width: 3px; height: 50%; background: var(--accent-indigo); border-radius: 1px;"></div>
-                    <div style="width: 3px; height: 80%; background: var(--accent-indigo); border-radius: 1px;"></div>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">${icon}</div>
+                  <div>
+                    <div style="font-weight: 700; color: #fff; font-size: 0.85rem;">${name}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">${g.source_target || 'MySQL ➔ Snowflake'}</div>
                   </div>
                 </div>
               </td>
+              <td>${statusBadge}</td>
               <td>
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                  <strong style="font-size: 0.8rem; min-width: 42px; color: ${strokeCol};">${succPct}%</strong>
-                  ${sparkLineSvg}
-                </div>
+                <div style="font-size: 0.8rem; font-weight: 600;">${g.start_time || 'Aug 12, 2026 10:45 PM'}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">${g.last_run}</div>
               </td>
-              <td>
-                <div style="display: flex; align-items: center; gap: 0.45rem;">
-                  <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-indigo); color: #fff; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">${ownerInitials}</div>
-                  <span style="font-size: 0.78rem; font-weight: 600;">${g.owner || 'Data Team'}</span>
-                </div>
+              <td><strong style="font-size: 0.82rem;">${g.duration}</strong></td>
+              <td><strong style="font-size: 0.82rem;">${g.records}</strong></td>
+              <td style="min-width: 140px;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: ${strokeCol}; margin-bottom: 0.2rem;">${succPct}%</div>
+                <div class="bar-track" style="height: 5px;"><div class="${barClass}" style="width: ${succPct}%;"></div></div>
               </td>
+              <td>${sparkLineSvg}</td>
               <td style="text-align: right;">
-                <div style="display: flex; gap: 0.35rem; justify-content: flex-end; align-items: center;">
-                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Metrics">📊</button>
-                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Logs">📄</button>
-                  <button class="btn-ctrl" style="padding: 0.25rem 0.4rem; font-size: 0.7rem;" title="Settings">⚙️</button>
+                <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
+                  <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Metrics" onclick="event.stopPropagation(); openMetricModal('sla');">📊</button>
+                  <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Actions" onclick="event.stopPropagation(); toggleRunDetails('${name}');">⋮</button>
                 </div>
               </td>
             </tr>
