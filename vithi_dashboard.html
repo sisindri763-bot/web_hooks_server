@@ -2257,79 +2257,69 @@
     }
 
     function renderFilteredPipelineData() {
-      const defaultLivePipelines = [
-        { id: '1', pipeline_name: 'run_hr_pipeline', source_target: 'MySQL ➔ Snowflake', status: 'Failed', duration: '11.3s', records: '660 rows', start_time: 'Aug 12, 2026 10:45 PM', last_run: '5d ago', owner: 'Data Team' },
-        { id: '2', pipeline_name: 'run_ecommerce_pipeline', source_target: 'MySQL ➔ Snowflake', status: 'Success', duration: '12.0s', records: '30 rows', start_time: 'Aug 12, 2026 10:30 PM', last_run: '6d ago', owner: 'Data Team' },
-        { id: '3', pipeline_name: 'run_stg_stock_data', source_target: 'MySQL ➔ Snowflake', status: 'Success', duration: '10.5s', records: '300 rows', start_time: 'Aug 12, 2026 10:15 PM', last_run: '7d ago', owner: 'Data Team' },
-        { id: '4', pipeline_name: 'dbt_job_run', source_target: 'dbt Cloud ➔ Snowflake', status: 'Success', duration: '0.0s', records: '10 rows', start_time: 'Aug 12, 2026 10:00 PM', last_run: '7d ago', owner: 'Data Team' }
-      ];
-
-      const rawRuns = (window.allRecentRuns && window.allRecentRuns.length > 0) ? window.allRecentRuns : defaultLivePipelines;
+      const rawRuns = window.allRecentRuns || [];
       const pFilter = window.selectedPipelineFilter || 'ALL';
+      const searchQ = (document.getElementById('pipelineSearchInput')?.value || '').toLowerCase().trim();
 
-      const filteredRuns = pFilter === 'ALL'
-        ? rawRuns
-        : rawRuns.filter(r => (r.pipeline_name || r.pipeline_id) === pFilter);
+      let filteredRuns = rawRuns;
+      if (pFilter !== 'ALL') {
+        filteredRuns = filteredRuns.filter(r => (r.pipeline_name || r.pipeline_id) === pFilter);
+      }
+      if (searchQ) {
+        filteredRuns = filteredRuns.filter(r => {
+          const str = ((r.pipeline_name || '') + ' ' + (r.status || '') + ' ' + (r.source_target || '') + ' ' + (r.start_time || '')).toLowerCase();
+          return str.includes(searchQ);
+        });
+      }
 
-      const uniquePipelines = new Set(filteredRuns.map(r => r.pipeline_name || r.pipeline_id));
-      const totalPipelinesCount = pFilter === 'ALL' ? (uniquePipelines.size || 4) : 1;
-      const activePipelinesCount = totalPipelinesCount;
-
+      // Compute KPI stats dynamically from live RDS runs
+      const uniquePipelines = new Set(rawRuns.map(r => r.pipeline_name || r.pipeline_id));
+      const totalPipelinesCount = uniquePipelines.size || (window.allRegisteredPipelines ? window.allRegisteredPipelines.length : 0);
+      
       let succCount = 0;
       let failCount = 0;
       let durSum = 0;
 
-      filteredRuns.forEach(r => {
+      rawRuns.forEach(r => {
         if (r.status === 'Success') succCount++;
         else failCount++;
         const d = parseFloat(r.duration) || 0;
         durSum += d;
       });
 
-      const totalRunsCount = filteredRuns.length;
+      const totalRunsCount = rawRuns.length;
       const succRate = totalRunsCount > 0 ? ((succCount / totalRunsCount) * 100).toFixed(1) : '100';
-      const avgDur = totalRunsCount > 0 ? (durSum / totalRunsCount).toFixed(1) : '11.5';
+      const avgDur = totalRunsCount > 0 ? (durSum / totalRunsCount).toFixed(1) : '0';
 
       setEl('drillTotalPipelines', totalPipelinesCount);
       setEl('drillTotalPipelinesDelta', `▲ ${totalPipelinesCount} active`);
-      setEl('drillActivePipelines', activePipelinesCount);
-      setEl('drillActiveDelta', `▲ ${activePipelinesCount} active`);
-      setEl('drillSuccessRuns', succCount);
-      setEl('drillSuccessDelta', `▲ ${succCount} successful`);
-      setEl('drillFailedPipelines', failCount);
-      setEl('drillFailedDelta', `▼ ${failCount} failed`);
       setEl('drillSuccessRate', `${succRate}%`);
       setEl('drillSuccessRateDelta', `▲ ${succRate}%`);
+      setEl('drillTotalRunsVal', totalRunsCount);
+      setEl('drillFailedPipelines', failCount);
+      setEl('drillFailedDelta', `▼ ${failCount} failed`);
       setEl('drillAvgDuration', `${avgDur}s`);
       setEl('drillAvgDurationDelta', `▼ ${avgDur}s`);
 
-      setEl('distSuccessRuns', succCount);
-      setEl('distSuccessPct', `${succRate}%`);
-      setEl('distFailedRuns', failCount);
-      setEl('distFailedPct', `${(100 - parseFloat(succRate)).toFixed(1)}%`);
-
-      if (window.pipelineDistChart) {
-        window.pipelineDistChart.data.datasets[0].data = [succCount, failCount, 0, 0];
-        window.pipelineDistChart.update();
-      }
-
-      setEl('pipelineChartTitle', pFilter === 'ALL' ? 'Pipeline Status Over Time' : `Status Trend: ${pFilter}`);
-
-      // Render Pipelines Overview Table (Matching Latest Screenshot)
+      // Render All Pipelines Table from live RDS runs
       const overviewTbody = document.getElementById('pipelinesOverviewTableBody');
       if (overviewTbody) {
-        const groups = {};
-        for (let r of filteredRuns) {
-          const name = r.pipeline_name || r.pipeline_id;
-          if (!groups[name]) {
-            groups[name] = { runs: 0, success: 0, last_run: r.last_run, duration: r.duration, owner: r.owner, status: r.status, records: r.records, source_target: r.source_target, start_time: r.start_time };
-          }
-          groups[name].runs += 1;
-          if (r.status === 'Success') groups[name].success += 1;
+        if (filteredRuns.length === 0) {
+          overviewTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 1.5rem; color: var(--text-muted);">No pipeline runs found in central database.</td></tr>`;
+          setEl('pipelineTablePaginationLabel', `Showing 0 of 0 pipelines`);
+          return;
         }
 
-        let oHtml = '';
-        const pNames = Object.keys(groups);
+        // Pagination calculations
+        const pageSize = 10;
+        const totalPages = Math.ceil(filteredRuns.length / pageSize) || 1;
+        let currentPage = window.currentPipelinePage || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        window.currentPipelinePage = currentPage;
+
+        const startIdx = (currentPage - 1) * pageSize;
+        const pageRuns = filteredRuns.slice(startIdx, startIdx + pageSize);
+
         const iconsMap = {
           'run_hr_pipeline': '📊',
           'run_ecommerce_pipeline': '🛒',
@@ -2337,56 +2327,70 @@
           'dbt_job_run': '⚙️'
         };
 
-        for (let name of pNames) {
-          const g = groups[name];
-          const succPct = Math.round((g.success / g.runs) * 100);
+        let oHtml = '';
+        for (let r of pageRuns) {
+          const name = r.pipeline_name || r.pipeline_id || 'Pipeline';
           const icon = iconsMap[name] || '⚡';
-          const statusBadge = g.status === 'Success' 
+          const isSucc = (r.status === 'Success');
+          const statusBadge = isSucc 
             ? '<span class="status-badge status-success"><span class="dot dot-success"></span>Success</span>' 
             : '<span class="status-badge status-failed"><span class="dot dot-failed"></span>Failed</span>';
 
-          const strokeCol = succPct >= 90 ? '#10b981' : (succPct >= 70 ? '#fde047' : '#f43f5e');
-          const barClass = succPct >= 70 ? 'bar-fill-emerald' : 'bar-fill-rose';
-          
+          const strokeCol = isSucc ? '#10b981' : '#f43f5e';
+          const barClass = isSucc ? 'bar-fill-emerald' : 'bar-fill-rose';
+          const rateVal = isSucc ? '100%' : '0%';
+          const barPct = isSucc ? '100%' : '0%';
+
           const sparkLineSvg = `
             <svg width="65" height="18" viewBox="0 0 65 18" style="overflow: visible;">
-              <path d="M0,14 L10,8 L20,15 L30,6 L40,11 L50,4 L65,9" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
+              <path d="${isSucc ? 'M0,14 L10,6 L20,9 L30,4 L40,7 L50,2 L65,5' : 'M0,14 L10,8 L20,15 L30,6 L40,11 L50,4 L65,9'}" fill="none" stroke="${strokeCol}" stroke-width="2" stroke-linecap="round"/>
             </svg>
           `;
 
           oHtml += `
-            <tr class="run-row" onclick="selectPipelineFilter('${name}')">
+            <tr class="run-row" onclick="toggleRunDetails('${r.id}')">
               <td>
                 <div style="display: flex; align-items: center; gap: 0.65rem;">
                   <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">${icon}</div>
                   <div>
                     <div style="font-weight: 700; color: #fff; font-size: 0.85rem;">${name}</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">${g.source_target || 'MySQL ➔ Snowflake'}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">${r.source_target || 'MySQL ➔ Snowflake'}</div>
                   </div>
                 </div>
               </td>
               <td>${statusBadge}</td>
               <td>
-                <div style="font-size: 0.8rem; font-weight: 600;">${g.start_time || 'Aug 12, 2026 10:45 PM'}</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);">${g.last_run}</div>
+                <div style="font-size: 0.8rem; font-weight: 600;">${r.start_time || 'Aug 12, 2026 10:45 PM'}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">${r.last_run}</div>
               </td>
-              <td><strong style="font-size: 0.82rem;">${g.duration}</strong></td>
-              <td><strong style="font-size: 0.82rem;">${g.records}</strong></td>
+              <td><strong style="font-size: 0.82rem;">${r.duration}</strong></td>
+              <td><strong style="font-size: 0.82rem;">${r.records}</strong></td>
               <td style="min-width: 140px;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: ${strokeCol}; margin-bottom: 0.2rem;">${succPct}%</div>
-                <div class="bar-track" style="height: 5px;"><div class="${barClass}" style="width: ${succPct}%;"></div></div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: ${strokeCol}; margin-bottom: 0.2rem;">${rateVal}</div>
+                <div class="bar-track" style="height: 5px;"><div class="${barClass}" style="width: ${barPct};"></div></div>
               </td>
               <td>${sparkLineSvg}</td>
               <td style="text-align: right;">
                 <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
                   <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Metrics" onclick="event.stopPropagation(); openMetricModal('sla');">📊</button>
-                  <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Actions" onclick="event.stopPropagation(); toggleRunDetails('${name}');">⋮</button>
+                  <button class="btn-ctrl" style="padding: 0.3rem 0.5rem; font-size: 0.75rem;" title="Actions" onclick="event.stopPropagation(); toggleRunDetails('${r.id}');">⋮</button>
+                </div>
+              </td>
+            </tr>
+            <tr id="detail-${r.id}" class="detail-row">
+              <td colspan="8">
+                <div class="detail-container">
+                  <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Console Execution Log (Run ID: ${r.id}):</div>
+                  <div class="log-terminal">Pipeline Name: ${name}\nStatus: ${r.status}\nDuration: ${r.duration}\nRecords Processed: ${r.records}\nStart Time: ${r.start_time}\nSource/Target: ${r.source_target}</div>
                 </div>
               </td>
             </tr>
           `;
         }
         overviewTbody.innerHTML = oHtml;
+
+        const endIdx = Math.min(startIdx + pageSize, filteredRuns.length);
+        setEl('pipelineTablePaginationLabel', `Showing ${startIdx + 1} to ${endIdx} of ${filteredRuns.length} pipelines`);
       }
     }
 
