@@ -456,10 +456,21 @@ def admin_delete_config(job_id: str):
 @app.route("/", methods=["GET"])
 @app.route("/vithi", methods=["GET"])
 def serve_vithi_dashboard():
-    vithi_path = Path(__file__).parent / "vithi_dashboard.html"
-    if vithi_path.exists():
-        return send_file(vithi_path)
-    return send_file(Path(__file__).parent / "index.html")
+    candidates = [
+        Path(__file__).parent / "vithi_dashboard.html",
+        Path(__file__).parent / "index.html",
+        Path(__file__).parent.parent / "frontend" / "index.html",
+        Path(__file__).parent.parent / "frontend" / "vithi_dashboard.html",
+    ]
+    for p in candidates:
+        if p.exists():
+            return send_file(p)
+    return jsonify({
+        "status": "ok",
+        "service": "webhook-server-backend",
+        "docs": "/docs",
+        "health": "/health"
+    }), 200
 
 
 @app.route("/api/dashboard/summary", methods=["GET"])
