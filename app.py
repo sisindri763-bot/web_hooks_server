@@ -453,6 +453,7 @@ def admin_delete_config(job_id: str):
 # Health & Dashboard UI routes
 # ---------------------------------------------------------------------------
 
+@app.route("/", methods=["GET"])
 @app.route("/vithi", methods=["GET"])
 def serve_vithi_dashboard():
     vithi_path = Path(__file__).parent / "vithi_dashboard.html"
