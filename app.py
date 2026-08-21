@@ -82,10 +82,10 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
     return response
 
-@app.route("/", methods=["OPTIONS"])
-@app.route("/<path:path>", methods=["OPTIONS"])
-def options_handler(path=None):
-    return "", 200
+@app.before_request
+def handle_options_preflight():
+    if request.method == "OPTIONS":
+        return "", 200
 
 # Initialise both DBs on startup
 init_db()
@@ -522,6 +522,171 @@ def health():
             "target": list(TARGET_ADAPTERS.keys()),
         },
     }), 200
+
+
+@app.route("/openapi.json", methods=["GET"])
+def openapi_spec():
+    spec = {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Data Observability & Webhook Server API",
+            "version": "1.0.0",
+            "description": "Production webhook server for dbt Cloud, Source/Target snapshots, and pipeline observability telemetry."
+        },
+        "paths": {
+            "/health": {
+                "get": {
+                    "summary": "Health check & registered adapter registry",
+                    "responses": {"200": {"description": "Service health and adapters"}}
+                }
+            },
+            "/": {
+                "get": {
+                    "summary": "Observability Dashboard UI",
+                    "responses": {"200": {"description": "HTML Dashboard"}}
+                }
+            },
+            "/webhooks/dbt/{user_id}": {
+                "post": {
+                    "summary": "Receive dbt Cloud webhook event",
+                    "parameters": [{"name": "user_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "jobId": {"type": "string", "example": "12345"},
+                                        "runId": {"type": "string", "example": "run_001"},
+                                        "eventType": {"type": "string", "example": "job.run.completed"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {"200": {"description": "Webhook processed result bundle"}}
+                }
+            },
+            "/admin/register-config": {
+                "post": {
+                    "summary": "Register a new pipeline config",
+                    "responses": {"201": {"description": "Pipeline registered"}}
+                }
+            },
+            "/admin/list-configs": {
+                "get": {
+                    "summary": "List all registered pipeline configs",
+                    "responses": {"200": {"description": "List of pipeline configs"}}
+                }
+            },
+            "/admin/delete-config/{job_id}": {
+                "delete": {
+                    "summary": "Delete pipeline config",
+                    "parameters": [{"name": "job_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "responses": {"200": {"description": "Pipeline deleted"}}
+                }
+            },
+            "/admin/runs": {
+                "get": {
+                    "summary": "List recent pipeline runs",
+                    "parameters": [{"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}}],
+                    "responses": {"200": {"description": "Recent runs"}}
+                }
+            },
+            "/admin/runs/{pipeline_run_id}": {
+                "get": {
+                    "summary": "Get single run details with asset snapshots",
+                    "parameters": [{"name": "pipeline_run_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "responses": {"200": {"description": "Run details"}}
+                }
+            },
+            "/api/dashboard/summary": {
+                "get": {
+                    "summary": "Executive summary KPIs",
+                    "responses": {"200": {"description": "Dashboard summary statistics"}}
+                }
+            },
+            "/api/dashboard/recent-runs": {
+                "get": {
+                    "summary": "Recent runs table",
+                    "responses": {"200": {"description": "Dashboard runs table"}}
+                }
+            },
+            "/api/dashboard/observability-details": {
+                "get": {
+                    "summary": "Observability telemetry details",
+                    "responses": {"200": {"description": "Observability metrics"}}
+                }
+            },
+            "/api/dashboard/quality-details": {
+                "get": {
+                    "summary": "Data quality test results",
+                    "responses": {"200": {"description": "Quality checks"}}
+                }
+            },
+            "/api/dashboard/incidents": {
+                "get": {
+                    "summary": "Incidents list",
+                    "responses": {"200": {"description": "Active and past incidents"}}
+                }
+            },
+            "/api/dashboard/metrics-details": {
+                "get": {
+                    "summary": "Performance metrics details",
+                    "responses": {"200": {"description": "Performance metrics"}}
+                }
+            },
+            "/api/dashboard/lineage": {
+                "get": {
+                    "summary": "Lineage data graph",
+                    "responses": {"200": {"description": "Data lineage graph"}}
+                }
+            },
+            "/api/pipelines": {
+                "get": {
+                    "summary": "List pipelines for dashboard",
+                    "responses": {"200": {"description": "List of pipelines"}}
+                }
+            }
+        }
+    }
+    return jsonify(spec), 200
+
+
+@app.route("/docs", methods=["GET"])
+def swagger_docs():
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Webhook Server - API Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; padding: 0; background: #fafafa; }
+    .topbar { display: none; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: '/openapi.json',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      });
+    };
+  </script>
+</body>
+</html>"""
+    return html, 200, {"Content-Type": "text/html"}
 
 
 # ---------------------------------------------------------------------------
